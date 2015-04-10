@@ -21,5 +21,19 @@ class ListSpec extends Specification {
       List.tail(List(1, 2)) mustEqual List(2)
     }
   }
+
+  "setHead" should {
+    "replace an empty list with a single-element list" in {
+      List.setHead(List(), 1) mustEqual List(1)
+    }
+
+    "replace a single-element list with a new single-elem list" in {
+      List.setHead(List(1), 2) mustEqual List(2)
+    }
+
+    "replace a multi-element list with a new multi-elem list" in {
+      List.setHead(List(1, 2), 2) mustEqual List(2, 2)
+    }
+  }
 }
 
