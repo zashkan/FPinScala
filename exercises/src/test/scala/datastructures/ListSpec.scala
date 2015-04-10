@@ -71,5 +71,19 @@ class ListSpec extends Specification with ScalaCheck {
       List.dropWhile(l, { i: Int => i < 2 }) mustEqual l
     }
   }
+
+  "init" should {
+    "fail for empty list" in {
+      List.init(List()) must throwA[NotImplementedError]
+    }
+
+    "succeed for a single-elem list" in {
+      List.init(List(1)) mustEqual Nil
+    }
+
+    "succeed for multi-elem list" in {
+      List.init(List(1, 2, 3, 4, 5)) mustEqual List(1, 2, 3, 4)
+    }
+  }
 }
 

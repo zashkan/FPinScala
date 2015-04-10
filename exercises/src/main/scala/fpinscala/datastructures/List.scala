@@ -73,7 +73,31 @@ object List { // `List` companion object. Contains functions for creating and wo
         else l
     }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  /*
+  init can't be implemented in constant time because it needs to
+  traverse the entire list in order to find all elements but the last.
+  */
+  def init[A](l: List[A]): List[A] = {
+    def reverse(l: List[A]): List[A] = {
+      def go(l: List[A], accum: List[A]): List[A] =
+        l match {
+          case Nil => accum
+          case Cons(h, t) => go(t, Cons(h, accum))
+        }
+
+      go(l, Nil)
+    }
+
+    def go(l: List[A], accum: List[A]): List[A] =
+      l match {
+        case Nil => ???
+        case Cons(h, Nil) => Nil
+        case Cons(h1, Cons(h2, Nil)) => Cons(h1, accum)
+        case Cons(h, t) => go(t, Cons(h, accum))
+      }
+
+    reverse(go(l, Nil))
+  }
 
   def length[A](l: List[A]): Int = sys.error("todo")
 
