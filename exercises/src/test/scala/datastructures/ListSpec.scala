@@ -51,5 +51,25 @@ class ListSpec extends Specification with ScalaCheck {
       List.drop(List(), 1) must throwA[NotImplementedError]
     }
   }
+
+  "dropWhile" should {
+    "drop list prefix elems matching predicate" in {
+      List.dropWhile(List(2, 4, 5, 7), { i: Int => i % 2 == 0 }) mustEqual {
+        List(5, 7)
+      }
+    }
+
+    "drop list prefix elems matching predicate upto first non-matching elem but none after" in {
+      List.dropWhile(List(2, 4, 5, 6), { i: Int => i % 2 == 0 }) mustEqual {
+        List(5, 6)
+      }
+    }
+
+    "not drop anything if no elems match predicate" in {
+      val l = List(2, 4, 5, 6)
+
+      List.dropWhile(l, { i: Int => i < 2 }) mustEqual l
+    }
+  }
 }
 
