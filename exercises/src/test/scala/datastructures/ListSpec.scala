@@ -1,7 +1,9 @@
 import org.specs2.mutable.Specification
+import org.specs2.ScalaCheck
+
 import fpinscala.datastructures._
 
-class ListSpec extends Specification {
+class ListSpec extends Specification with ScalaCheck {
   "Exercise 3.1" should {
     "result in x being 3" in {
       List.x mustEqual 3
@@ -33,6 +35,20 @@ class ListSpec extends Specification {
 
     "replace a multi-element list with a new multi-elem list" in {
       List.setHead(List(1, 2), 2) mustEqual List(2, 2)
+    }
+  }
+
+  "drop" should {
+    "succeed if drop count less than list length" in {
+      List.drop(List(1), 0) mustEqual List(1)
+    }
+
+    "succeed if drop count equal to list length" in {
+      List.drop(List(1), 1) mustEqual List()
+    }
+
+    "fail if drop count greater than list length" in {
+      List.drop(List(), 1) must throwA[NotImplementedError]
     }
   }
 }
