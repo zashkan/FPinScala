@@ -46,6 +46,16 @@ object List { // `List` companion object. Contains functions for creating and wo
   def sum2(ns: List[Int]) = 
     foldRight(ns, 0)((x,y) => x + y)
   
+  /*
+  Product2, implemented in terms of foldRight, can't immediately halt
+  recursion on encountering a 0.0 because foldRight doesn't have any
+  logic for short-circuiting a recursive traversal of a list.
+
+  For short-circuiting to work, we would need to redefine foldRight to
+  pass it a 'sentinel' value; if it encounters the sentinel value in the
+  list, it would short-circuit and immediately return the accumulated
+  value.
+  */
   def product2(ns: List[Double]) = 
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
