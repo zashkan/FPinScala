@@ -129,5 +129,53 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "sum3" should {
+    "succeed for an empty list" in {
+      List.sum3(Nil) mustEqual 0
+    }
+
+    "succeed for a single-element list" in {
+      List.sum3(List(1)) mustEqual 1
+    }
+
+    "succeed for a multi-elem list" in {
+      List.sum3(List(1, 2, 3, 4, 5)) mustEqual {
+        scala.List(1, 2, 3, 4, 5).sum
+      }
+    }
+  }
+
+  "product3" should {
+    "succeed for an empty list" in {
+      List.product3(Nil) mustEqual 1
+    }
+
+    "succeed for a single-element list" in {
+      List.product3(List(1)) mustEqual 1
+    }
+
+    "succeed for a multi-elem list" in {
+      List.product3(List(1, 2, 3, 4, 5)) mustEqual {
+        scala.List(1, 2, 3, 4, 5).product
+      }
+    }
+  }
+
+  "length3" should {
+    "succeed for an empty list" in {
+      List.length3(Nil) mustEqual 0
+    }
+
+    "succeed for a single-element list" in {
+      List.length3(List(1)) mustEqual 1
+    }
+
+    "succeed for a multi-elem list" in {
+      List.length3(List(1, 2, 3, 4, 5)) mustEqual {
+        scala.List(1, 2, 3, 4, 5).length
+      }
+    }
+  }
 }
 
