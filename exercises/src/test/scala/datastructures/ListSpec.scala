@@ -96,5 +96,19 @@ class ListSpec extends Specification with ScalaCheck {
       List.foldRight(l, Nil: List[Int])(Cons(_, _)) mustEqual l
     }
   }
+
+  "length" should {
+    "succeed for an empty list" in {
+      List.length(List()) mustEqual 0
+    }
+
+    "succeed for a single-element list" in {
+      List.length(List(1)) mustEqual 1
+    }
+
+    "succeed for a multi-elem list" in {
+      List.length(List(1, 2, 3, 4, 5)) mustEqual 5
+    }
+  }
 }
 
