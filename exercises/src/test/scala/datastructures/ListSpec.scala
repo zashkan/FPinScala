@@ -85,5 +85,16 @@ class ListSpec extends Specification with ScalaCheck {
       List.init(List(1, 2, 3, 4, 5)) mustEqual List(1, 2, 3, 4)
     }
   }
+
+  /*
+  FoldRight is a homomorphism over lists--it applies a given function to
+  the list while preserving the shape of the list.
+  */
+  "foldRight" should {
+    "be a homomorphism over lists" in {
+      val l = List(1, 2, 3)
+      List.foldRight(l, Nil: List[Int])(Cons(_, _)) mustEqual l
+    }
+  }
 }
 
