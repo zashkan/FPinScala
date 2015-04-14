@@ -230,5 +230,17 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "concat" should {
+    "succeed for an empty list" in {
+      List.concat(Nil) mustEqual Nil
+    }
+
+    "succeed for a non-empty list" in {
+      List.concat(List(List(1), List(2), List(3))) mustEqual {
+        List(1, 2, 3)
+      }
+    }
+  }
 }
 
