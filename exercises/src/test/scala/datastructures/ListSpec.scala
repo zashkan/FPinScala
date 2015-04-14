@@ -217,5 +217,18 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "append_using_foldRight" should {
+    "succeed for an empty list" in {
+      val a2 = List(1, 2, 3)
+      List.append_using_foldRight(Nil, a2) mustEqual a2
+    }
+
+    "succeed for a non-empty list" in {
+      List.append(List(1, 2, 3), List(4, 5, 6)) mustEqual {
+        List(1, 2, 3, 4, 5, 6)
+      }
+    }
+  }
 }
 

@@ -145,6 +145,9 @@ object List { // `List` companion object. Contains functions for creating and wo
   def foldRight_using_foldLeft[A, B](l: List[A], z: B)(f: (A, B) => B): B =
     foldLeft(reverse(l), z) { (b, a) => f(a, b) }
 
+  def append_using_foldRight[A](a1: List[A], a2: List[A]): List[A] =
+    foldRight(a1, a2) { (a: A, as: List[A]) => Cons(a, append(as, a2)) }
+
   def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
 }
 
