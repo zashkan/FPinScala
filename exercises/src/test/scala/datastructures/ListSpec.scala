@@ -258,5 +258,15 @@ class ListSpec extends Specification with ScalaCheck {
       List.toString(List(1.0, 2.0, 3.0)) mustEqual List("1.0", "2.0", "3.0")
     }
   }
+
+  "map" should {
+    "succeed for an empty list" in {
+      List.map(Nil: List[Int])(_ + 1)  mustEqual Nil
+    }
+
+    "succeed for a non-empty list" in {
+      List.map(List(1, 2, 3))(_ + 1) mustEqual List(2, 3, 4)
+    }
+  }
 }
 
