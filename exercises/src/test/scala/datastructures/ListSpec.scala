@@ -268,5 +268,13 @@ class ListSpec extends Specification with ScalaCheck {
       List.map(List(1, 2, 3))(_ + 1) mustEqual List(2, 3, 4)
     }
   }
+
+  "filter" should {
+    "succeed for a list of integers" in {
+      List.filter(List(1, 2, 3, 4, 5, 6))(_ % 2 == 0) mustEqual {
+        List(2, 4, 6)
+      }
+    }
+  }
 }
 
