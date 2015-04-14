@@ -292,5 +292,17 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "addIntLists" should {
+    "succeed with an empty list" in {
+      List.addIntLists(List(1, 2, 3), Nil) mustEqual Nil
+    }
+
+    "succeed with a non-empty list" in {
+      List.addIntLists(List(1, 2, 3), List(4, 5, 6)) mustEqual {
+        List(5, 7, 9)
+      }
+    }
+  }
 }
 
