@@ -178,7 +178,6 @@ class ListSpec extends Specification with ScalaCheck {
     }
   }
 
-
   "reverse" should {
     "succeed for an empty list" in { List.reverse(Nil) mustEqual Nil }
 
@@ -189,6 +188,33 @@ class ListSpec extends Specification with ScalaCheck {
 
     "succeed for a multi-elem list" in {
       List.reverse(List(1, 2, 3, 4, 5)) mustEqual List(5, 4, 3, 2, 1)
+    }
+  }
+
+
+  "foldRight_using_foldLeft" should {
+    "be a homomorphism over lists" in {
+      val l = List(1, 2, 3)
+      List.foldRight_using_foldLeft(l, Nil: List[Int])(Cons(_, _)) mustEqual l
+    }
+  }
+
+  "foldLeft_using_foldRight" should {
+    "succeed for an empty list" in {
+      val l = Nil: List[Nothing]
+      List.foldLeft_using_foldRight(l, l) { (b, a) => Cons(a, b) } mustEqual l
+    }
+
+    "succeed for a single-element list" in {
+      val l = List(1)
+      List.foldLeft_using_foldRight(l, Nil: List[Int]) { (b, a) => Cons(a, b) } mustEqual l
+    }
+
+    "succeed for a multi-elem list" in {
+      val l = List(1, 2, 3, 4, 5)
+      List.foldLeft_using_foldRight(l, Nil: List[Int]) { (b, a) => Cons(a, b) } mustEqual {
+        List(5, 4, 3, 2, 1)
+      }
     }
   }
 }
