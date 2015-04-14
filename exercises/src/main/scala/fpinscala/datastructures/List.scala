@@ -156,6 +156,11 @@ object List { // `List` companion object. Contains functions for creating and wo
       (x: Int, xs: List[Int]) => Cons(x + 1, xs)
     }
 
+  def toString(xs: List[Double]): List[String] =
+    foldRight_using_foldLeft(xs, Nil: List[String]) {
+      (x: Double, xs: List[String]) => Cons(x.toString, xs)
+    }
+
   def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
 }
 
