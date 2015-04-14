@@ -284,5 +284,13 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "filter_using_flatMap" should {
+    "succeed for a list of integers" in {
+      List.filter_using_flatMap(List(1, 2, 3, 4, 5, 6))(_ % 2 == 0) mustEqual {
+        List(2, 4, 6)
+      }
+    }
+  }
 }
 
