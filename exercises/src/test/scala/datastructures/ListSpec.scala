@@ -316,5 +316,27 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "hasSubsequence" should {
+    "be true for any list with an empty list" in {
+      List.hasSubsequence(List(1), Nil) mustEqual true
+    }
+
+    "be false for an empty list with any list" in {
+      List.hasSubsequence(Nil, List(1)) mustEqual false
+    }
+
+    "be true for any superlist with any beginning sublist" in {
+      List.hasSubsequence(List(1, 2), List(1)) mustEqual true
+    }
+
+    "be true for any superlist with any embedded sublist" in {
+      List.hasSubsequence(List(1, 2, 3, 4), List(2, 3)) mustEqual true
+    }
+
+    "be true for any superlist with any ending sublist" in {
+      List.hasSubsequence(List(1, 2, 3, 4), List(3, 4)) mustEqual true
+    }
+  }
 }
 
