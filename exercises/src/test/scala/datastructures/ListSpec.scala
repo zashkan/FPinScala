@@ -276,5 +276,13 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "flatMap" should {
+    "succeed for a list of integers and a function from an integer to a list of integers" in {
+      List.flatMap(List(1, 2, 3))(i => List(i, i)) mustEqual {
+        List(1, 1, 2, 2, 3, 3)
+      }
+    }
+  }
 }
 
