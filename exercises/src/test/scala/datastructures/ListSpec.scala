@@ -177,5 +177,19 @@ class ListSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+
+  "reverse" should {
+    "succeed for an empty list" in { List.reverse(Nil) mustEqual Nil }
+
+    "succeed for a single-element list" in {
+      val l = List(1)
+      List.reverse(l) mustEqual l
+    }
+
+    "succeed for a multi-elem list" in {
+      List.reverse(List(1, 2, 3, 4, 5)) mustEqual List(5, 4, 3, 2, 1)
+    }
+  }
 }
 
