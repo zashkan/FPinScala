@@ -13,6 +13,8 @@ class TreeSpec extends Specification {
           Leaf(3))),
       Leaf(4))
 
+  def add1(i: Int) = i + 1
+
   "size" should {
     "succeed with single-node tree" in {
       Tree.size(singleNodeTree) mustEqual 1
@@ -33,7 +35,6 @@ class TreeSpec extends Specification {
     }
   }
 
-
   "depth" should {
     "succeed with a single-node tree" in {
       Tree.depth(singleNodeTree) mustEqual 0
@@ -41,6 +42,24 @@ class TreeSpec extends Specification {
 
     "succeed with a multi-node tree" in {
       Tree.depth(multiNodeTree) mustEqual 3
+    }
+  }
+
+  "map" should {
+    "succeed with a single-node tree" in {
+      Tree.map(singleNodeTree)(add1) mustEqual Leaf(2)
+    }
+
+    "succeed with a multi-node tree" in {
+      Tree.map(multiNodeTree)(add1) mustEqual {
+        Branch(
+          Branch(
+            Leaf(2),
+            Branch(
+              Leaf(3),
+              Leaf(4))),
+          Leaf(5))
+      }
     }
   }
 }
