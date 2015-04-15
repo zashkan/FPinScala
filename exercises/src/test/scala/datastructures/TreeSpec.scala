@@ -32,5 +32,16 @@ class TreeSpec extends Specification {
       Tree.maximum(multiNodeTree) mustEqual 4
     }
   }
+
+
+  "depth" should {
+    "succeed with a single-node tree" in {
+      Tree.depth(singleNodeTree) mustEqual 0
+    }
+
+    "succeed with a multi-node tree" in {
+      Tree.depth(multiNodeTree) mustEqual 3
+    }
+  }
 }
 
