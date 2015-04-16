@@ -26,7 +26,7 @@ class ListSpec extends Specification with ScalaCheck {
 
   "setHead" should {
     "replace an empty list with a single-element list" in {
-      List.setHead(List(), 1) mustEqual List(1)
+      List.setHead(Nil, 1) must throwA[NotImplementedError]
     }
 
     "replace a single-element list with a new single-elem list" in {

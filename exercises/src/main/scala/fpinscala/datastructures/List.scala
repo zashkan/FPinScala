@@ -72,7 +72,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def setHead[A](l: List[A], h: A): List[A] =
     l match {
-      case Nil => List(h)
+      case Nil => ???
       case Cons(_, t) => Cons(h, t)
     }
 
