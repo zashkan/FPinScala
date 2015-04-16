@@ -90,4 +90,20 @@ class OptionSpec extends Specification {
       Option.map2(someObj, None)(addXY) mustEqual None
     }
   }
+
+  "sequence" should {
+    "return some empty list if given an empty list" in {
+      Option.sequence(List.empty) mustEqual Some(List.empty)
+    }
+
+    "return absent value if given list with any absent values" in {
+      Option.sequence(List(someObj, someOtherObj, None)) mustEqual None
+    }
+
+    "return some list of values if given list with no absent values" in {
+      Option.sequence(List(someObj, someOtherObj)) mustEqual {
+        Some(List(1, 2))
+      }
+    }
+  }
 }
