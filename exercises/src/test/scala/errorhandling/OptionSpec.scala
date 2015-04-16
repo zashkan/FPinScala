@@ -7,6 +7,7 @@ class OptionSpec extends Specification {
   val someOtherObj = Some(2)
   def add1(i: Int) = i + 1
   def addSome1(i: Int) = Some(add1(i))
+  def addXY(x: Int, y: Int) = x + y
 
   "map" should {
     "map a value using the provided function" in {
@@ -73,6 +74,20 @@ class OptionSpec extends Specification {
 
     "exist for a non-empty list" in {
       Option.variance(Seq(1)) mustEqual Some(0.0)
+    }
+  }
+
+  "map2" should {
+    "return mapped value if both inputs are present" in {
+      Option.map2(someObj, someOtherObj)(addXY) mustEqual Some(3)
+    }
+
+    "return absent value if first input is absent" in {
+      Option.map2(None, someObj)(addXY) mustEqual None
+    }
+
+    "return absent value if second input is absent" in {
+      Option.map2(someObj, None)(addXY) mustEqual None
     }
   }
 }
