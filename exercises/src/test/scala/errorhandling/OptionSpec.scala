@@ -106,4 +106,24 @@ class OptionSpec extends Specification {
       }
     }
   }
+
+  "sequence_using_traverse" should {
+    "return some empty list if given an empty list" in {
+      Option.sequence_using_traverse(List.empty) mustEqual {
+        Some(List.empty)
+      }
+    }
+
+    "return absent value if given list with any absent values" in {
+      Option.sequence_using_traverse(
+        List(someObj, someOtherObj, None)
+      ) mustEqual None
+    }
+
+    "return some list of values if given list with no absent values" in {
+      Option.sequence_using_traverse(
+        List(someObj, someOtherObj)
+      ) mustEqual Some(List(1, 2))
+    }
+  }
 }

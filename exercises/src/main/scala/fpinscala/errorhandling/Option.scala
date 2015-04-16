@@ -60,5 +60,12 @@ object Option {
       map2(a, b) { (a, b) => a :: b }
     }
 
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = sys.error("todo")
+  def traverse[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] =
+    as.foldRight(Some(List.empty): Option[List[B]]) { (a, obs) =>
+      map2(f(a), obs) { (b, bs) => b :: bs }
+    }
+
+  def sequence_using_traverse[A](as: List[Option[A]]): Option[List[A]] =
+    traverse(as)(identity)
 }
+
