@@ -37,6 +37,10 @@ object List { // `List` companion object. Contains functions for creating and wo
       case Cons(h,t) => Cons(h, append(t, a2))
     }
 
+  /*
+  This implementation of foldRight is not tail-recursive because the
+  recursive call is not in tail position.
+  */
   def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = // Utility functions
     as match {
       case Nil => z
@@ -46,23 +50,167 @@ object List { // `List` companion object. Contains functions for creating and wo
   def sum2(ns: List[Int]) = 
     foldRight(ns, 0)((x,y) => x + y)
   
+  /*
+  Product2, implemented in terms of foldRight, can't immediately halt
+  recursion on encountering a 0.0 because foldRight doesn't have any
+  logic for short-circuiting a recursive traversal of a list.
+
+  For short-circuiting to work, we would need to redefine foldRight to
+  pass it a 'sentinel' value; if it encounters the sentinel value in the
+  list, it would short-circuit and immediately return the accumulated
+  value.
+  */
   def product2(ns: List[Double]) = 
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  def tail[A](l: List[A]): List[A] =
+    l match {
+      case Nil => ???
+      case Cons(_, t) => t
+    }
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  def setHead[A](l: List[A], h: A): List[A] =
+    l match {
+      case Nil => ???
+      case Cons(_, t) => Cons(h, t)
+    }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
+  def drop[A](l: List[A], n: Int): List[A] =
+    if (n < 1) l else drop(tail(l), n - 1)
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] =
+    l match {
+      case Nil => Nil
+      case Cons(h, t) =>
+        if (f(h)) dropWhile(t, f)
+        else l
+    }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  /*
+  init can't be implemented in constant time because it needs to
+  traverse the entire list in order to find all elements but the last.
+  */
+  def init[A](l: List[A]): List[A] = {
+    def reverse(l: List[A]): List[A] = {
+      def go(l: List[A], accum: List[A]): List[A] =
+        l match {
+          case Nil => accum
+          case Cons(h, t) => go(t, Cons(h, accum))
+        }
 
-  def length[A](l: List[A]): Int = sys.error("todo")
+      go(l, Nil)
+    }
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
+    def go(l: List[A], accum: List[A]): List[A] =
+      l match {
+        case Nil => ???
+        case Cons(h, Nil) => Nil
+        case Cons(h1, Cons(h2, Nil)) => Cons(h1, accum)
+        case Cons(h, t) => go(t, Cons(h, accum))
+      }
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+    reverse(go(l, Nil))
+  }
+
+  def length[A](l: List[A]): Int = foldRight(l, 0) { (x, z) => z + 1 }
+
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B =
+    l match {
+      case Nil => z
+      case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+    }
+
+  def sum3(xs: List[Int]): Int = foldLeft(xs, 0)(_ + _)
+
+  def product3(xs: List[Int]): Int = foldLeft(xs, 1)(_ * _)
+
+  def length3(xs: List[Int]): Int = foldLeft(xs, 0) { (z, x) => z + 1 }
+
+  def reverse[A](l: List[A]): List[A] =
+    foldLeft(l, Nil: List[A]) { (b, a) => Cons(a, b) }
+
+  def foldLeft_using_foldRight[A, B](l: List[A], z: B)(f: (B, A) => B): B = {
+    def foldF(l: List[A]) =
+      foldRight(l, (b: B) => b) {
+        (a: A, fz: B => B) => (b: B) => fz(f(b, a))
+      }
+
+    l match {
+      case Nil => z
+      case Cons(x, xs) => foldF(xs)(f(z, x))
+    }
+  }
+
+  def foldRight_using_foldLeft[A, B](l: List[A], z: B)(f: (A, B) => B): B =
+    foldLeft(reverse(l), z) { (b, a) => f(a, b) }
+
+  def append_using_foldRight[A](a1: List[A], a2: List[A]): List[A] =
+    foldRight(a1, a2) { (a: A, as: List[A]) => Cons(a, append(as, a2)) }
+
+  def concat[A](xss: List[List[A]]): List[A] =
+    foldRight_using_foldLeft(xss, Nil: List[A])(append(_, _))
+
+  def add1(xs: List[Int]): List[Int] =
+    foldRight_using_foldLeft(xs, Nil: List[Int]) {
+      (x: Int, xs: List[Int]) => Cons(x + 1, xs)
+    }
+
+  def toString(xs: List[Double]): List[String] =
+    foldRight_using_foldLeft(xs, Nil: List[String]) {
+      (x: Double, xs: List[String]) => Cons(x.toString, xs)
+    }
+
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    foldRight_using_foldLeft(l, Nil: List[B]) {
+      (x: A, xs: List[B]) => Cons(f(x), xs)
+    }
+
+  def filter[A](l: List[A])(f: A => Boolean): List[A] =
+    foldRight_using_foldLeft(l, Nil: List[A]) {
+      (x: A, xs: List[A]) => if (f(x)) Cons(x, xs) else xs
+    }
+
+  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] =
+    concat(map(as)(f))
+
+  def filter_using_flatMap[A](l: List[A])(f: A => Boolean): List[A] =
+    flatMap(l)(x => if (f(x)) List(x) else Nil)
+
+  def addIntLists(xs: List[Int], ys: List[Int]): List[Int] =
+    (xs, ys) match {
+      case (_, Nil) => Nil
+      case (Nil, _) => Nil
+      case (Cons(x, xs), Cons(y, ys)) => Cons(x + y, addIntLists(xs, ys))
+    }
+
+  def zipWith[A, B, C](as: List[A], bs: List[B])(f: (A, B) => C): List[C] =
+    (as, bs) match {
+      case (_, Nil) => Nil
+      case (Nil, _) => Nil
+      case (Cons(a, as), Cons(b, bs)) =>
+        Cons(f(a, b), zipWith(as, bs)(f))
+    }
+
+  def hasSubsequence[A](
+    superList: List[A],
+    subList: List[A]
+  ): Boolean = {
+    def startsWith(xs: List[A], ys: List[A]): Boolean =
+      (xs, ys) match {
+        case (_, Nil) => true
+        case (Nil, _) => false
+        case (Cons(x, xs), Cons(y, ys)) if (x == y) =>
+          startsWith(xs, ys)
+        case _ => false
+      }
+
+    (superList, subList) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(x, xs), Cons(y, ys)) =>
+        if (x == y) startsWith(xs, ys) else hasSubsequence(xs, ys)
+    }
+  }
 }
+
