@@ -65,4 +65,14 @@ class OptionSpec extends Specification {
       None.filter(_ == 1) mustEqual None
     }
   }
+
+  "variance" should {
+    "not exist for an empty list" in {
+      Option.variance(Seq()) mustEqual None
+    }
+
+    "exist for a non-empty list" in {
+      Option.variance(Seq(1)) mustEqual Some(0.0)
+    }
+  }
 }
