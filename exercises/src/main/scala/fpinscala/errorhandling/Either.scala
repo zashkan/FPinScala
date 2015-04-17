@@ -10,9 +10,8 @@ sealed trait Either[+E,+A] {
     }
 
   def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B] =
-    map(f) match {
-      case Right(Right(b)) => Right(b)
-      case Right(Left(e)) => Left(e)
+    this match {
+      case Right(a) => f(a)
       case Left(e) => Left(e)
     }
 
