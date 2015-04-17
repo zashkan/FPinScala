@@ -95,5 +95,28 @@ class EitherSpec extends Specification with ScalaCheck {
       Either.sequence(List(leftObj, Left(2))) mustEqual leftObj
     }
   }
+
+  "map2Either" should {
+    case class Person(name: Name, age: Age)
+    sealed class Name(val value: String)
+    sealed class Age(val value: Int)
+
+    def mkName(name: String): Either[String, Name] =
+      if (name == "" || name == null) Left("Empty name")
+      else Right(new Name(name))
+
+    def mkAge(age: Int): Either[String, Age] =
+      if (age < 0) Left("Out of range age")
+      else Right(new Age(age))
+
+    def mkPerson(name: String, age: Int): Either[String, Person] =
+      mkName(name).map2Either(mkAge(age)) {
+        (e1, e2) => e1 + "," + e2
+      } { (name, age) => Person(name, age) }
+
+    "combine left values if more than one" in {
+      mkPerson("", -1) mustEqual Left("Empty name,Out of range age")
+    }
+  }
 }
 

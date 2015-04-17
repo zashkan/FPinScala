@@ -24,6 +24,19 @@ sealed trait Either[+E,+A] {
 
   def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] =
     flatMap { aVal => b.map { bVal => f(aVal, bVal) } }
+
+  /*
+  Using map2Either, we can combine all errors into a single value as
+  long as the 'E2' type can act as a container type for multiple error
+  values.
+  */
+  def map2Either[E2 >: E, A2, A3](e: Either[E2, A2])(leftF: (E2, E2) => E2)(rightF: (A, A2) => A3): Either[E2, A3] =
+    (this, e) match {
+      case (Right(a1), Right(a2)) => Right(rightF(a1, a2))
+      case (Left(e), Right(a)) => Left(e)
+      case (Right(a), Left(e)) => Left(e)
+      case (Left(e1), Left(e2)) => Left(leftF(e1, e2))
+    }
 }
 
 case class Left[+E](get: E) extends Either[E,Nothing]
