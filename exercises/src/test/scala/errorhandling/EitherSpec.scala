@@ -77,5 +77,23 @@ class EitherSpec extends Specification with ScalaCheck {
       leftObj.map2(Left(2))(addXY) mustEqual leftObj
     }
   }
+
+  "sequence" should {
+    "return a right value of a list of values" in {
+      Either.sequence(List(rightObj, rightObj2)) mustEqual {
+        Right(List(1, 2))
+      }
+    }
+
+    "return a left value from a list of values" in {
+      Either.sequence(List(rightObj, rightObj2, leftObj)) mustEqual {
+        leftObj
+      }
+    }
+
+    "return the first left value from several" in {
+      Either.sequence(List(leftObj, Left(2))) mustEqual leftObj
+    }
+  }
 }
 
