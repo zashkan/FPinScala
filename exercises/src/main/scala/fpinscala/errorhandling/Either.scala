@@ -32,8 +32,8 @@ sealed trait Either[+E,+A] {
   def map2Either[E2 >: E, A2, A3](e: Either[E2, A2])(leftF: (E2, E2) => E2)(rightF: (A, A2) => A3): Either[E2, A3] =
     (this, e) match {
       case (Right(a1), Right(a2)) => Right(rightF(a1, a2))
-      case (Left(e), Right(a)) => Left(e)
-      case (Right(a), Left(e)) => Left(e)
+      case (Left(e), Right(_)) => Left(e)
+      case (Right(_), Left(e)) => Left(e)
       case (Left(e1), Left(e2)) => Left(leftF(e1, e2))
     }
 }
