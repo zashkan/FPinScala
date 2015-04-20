@@ -18,9 +18,27 @@ trait Stream[+A] {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = sys.error("todo")
 
-  def drop(n: Int): Stream[A] = sys.error("todo")
+  def take(n: Int): Stream[A] = {
+    @annotation.tailrec
+    def go(x: Stream[A], n: Int, y: Stream[A]): Stream[A] =
+      x match {
+        case Empty => y
+        case Cons(h, t) =>
+          if (n < 1) y else go(t(), n - 1, Cons(h, () => y))
+      }
+
+    go(this, n, Empty)
+  }
+
+  @annotation.tailrec
+  final def drop(n: Int): Stream[A] =
+    this match {
+      case Empty => Empty
+      case Cons(h, t) =>
+        val tForced = t()
+        if (n < 2) tForced else tForced.drop(n - 1)
+    }
 
   def takeWhile(p: A => Boolean): Stream[A] = sys.error("todo")
 
