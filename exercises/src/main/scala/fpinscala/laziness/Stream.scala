@@ -40,7 +40,10 @@ trait Stream[+A] {
         if (n < 2) tForced else tForced.drop(n - 1)
     }
 
-  def takeWhile(p: A => Boolean): Stream[A] = sys.error("todo")
+  def takeWhile(p: A => Boolean): Stream[A] =
+    foldRight(Empty: Stream[A]) { (a, b) =>
+      if (p(a)) Cons(() => a, () => b) else Empty
+    }
 
   def forAll(p: A => Boolean): Boolean = sys.error("todo")
 

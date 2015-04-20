@@ -8,6 +8,9 @@ class StreamSpec extends Specification with ScalaCheck {
   val stream1 = Stream.cons(1, emptyIntStream)
   val stream2 = Stream.cons(1, Stream.cons(2, emptyIntStream))
 
+  def isEven(i: Int) = i % 2 == 0
+  def isOdd(i: Int) = i % 2 != 0
+
   "toList" should {
     "convert a stream to a list" in {
       Stream.cons(1, Stream.cons(2, Stream.cons(3, emptyIntStream))).toList mustEqual {
@@ -41,6 +44,20 @@ class StreamSpec extends Specification with ScalaCheck {
 
     "drop part of stream if asked to drop less than stream contains" in {
       stream2.drop(1).toList mustEqual List(2)
+    }
+  }
+
+  "takeWhile" should {
+    "take nothing from an empty stream" in {
+      emptyIntStream.takeWhile(isEven) mustEqual emptyIntStream
+    }
+
+    "take nothing if no items match predicate" in {
+      stream1.takeWhile(isEven) mustEqual emptyIntStream
+    }
+
+    "take items only as long as they match predicate" in {
+      stream2.takeWhile(isOdd).toList mustEqual List(1)
     }
   }
 }
