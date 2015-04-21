@@ -161,5 +161,14 @@ class StreamSpec extends Specification with ScalaCheck {
       Stream.constant(x).take(n).toList mustEqual List.fill(n)(x)
     }
   }
+
+  "from" should {
+    "generate a stream from the given start" in {
+      val x = 1
+      val n = 100
+
+      Stream.from(x).take(n).toList mustEqual (x to x + n - 1).toList
+    }
+  }
 }
 

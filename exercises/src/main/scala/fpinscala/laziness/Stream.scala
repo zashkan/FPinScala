@@ -19,17 +19,11 @@ trait Stream[+A] {
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-  def take(n: Int): Stream[A] = {
-    @annotation.tailrec
-    def go(x: Stream[A], n: Int, y: Stream[A]): Stream[A] =
-      x match {
-        case Empty => y
-        case Cons(h, t) =>
-          if (n < 1) y else go(t(), n - 1, Cons(h, () => y))
-      }
-
-    go(this, n, Empty)
-  }
+  def take(n: Int): Stream[A] =
+    this match {
+      case Cons(h, t) if (n > 0) => Cons(h, () => t().take(n - 1))
+      case _ => Empty
+    }
 
   @annotation.tailrec
   final def drop(n: Int): Stream[A] =
@@ -90,7 +84,7 @@ object Stream {
 
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
-  def from(n: Int): Stream[Int] = sys.error("todo")
+  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
 }
