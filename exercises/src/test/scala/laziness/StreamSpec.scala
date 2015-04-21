@@ -152,5 +152,14 @@ class StreamSpec extends Specification with ScalaCheck {
       stream1.append(stream2).toList mustEqual List(1, 1, 2)
     }
   }
+
+  "constant" should {
+    "return an infinite stream of the given value" in {
+      val x = 1
+      val n = 100
+
+      Stream.constant(x).take(n).toList mustEqual List.fill(n)(x)
+    }
+  }
 }
 
