@@ -60,5 +60,20 @@ class StreamSpec extends Specification with ScalaCheck {
       stream2.takeWhile(isOdd).toList mustEqual List(1)
     }
   }
+
+  "forAll" should {
+    "succeed for empty stream" in {
+      emptyIntStream.forAll(isEven) mustEqual true
+    }
+
+    "terminate as soon as it finds non-matching value" in {
+      /*
+      Because Stream.ones is an infinite stream, the very fact that this
+      test finishes executing is proof that that forAll terminates as
+      soon as it finds a non-matching value.
+      */
+      Stream.ones.forAll(isEven) mustEqual false
+    }
+  }
 }
 
