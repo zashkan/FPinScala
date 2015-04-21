@@ -170,5 +170,13 @@ class StreamSpec extends Specification with ScalaCheck {
       Stream.from(x).take(n).toList mustEqual (x to x + n - 1).toList
     }
   }
+
+  "fibs" should {
+    "generate Fibonacci numbers" in {
+      Stream.fibs.take(10).toList mustEqual {
+        List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+      }
+    }
+  }
 }
 
