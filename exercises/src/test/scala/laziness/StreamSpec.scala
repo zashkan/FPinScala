@@ -75,5 +75,15 @@ class StreamSpec extends Specification with ScalaCheck {
       Stream.ones.forAll(isEven) mustEqual false
     }
   }
+
+  "headOption" should {
+    "succeed for empty stream" in {
+      emptyIntStream.headOption mustEqual None
+    }
+
+    "succeed for non-empty stream" in {
+      stream1.headOption mustEqual Some(1)
+    }
+  }
 }
 
