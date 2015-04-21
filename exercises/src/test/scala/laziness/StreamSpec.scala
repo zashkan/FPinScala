@@ -5,11 +5,12 @@ import fpinscala.laziness._
 
 class StreamSpec extends Specification with ScalaCheck {
   val emptyIntStream = Stream.empty[Int]
-  val stream1 = Stream.cons(1, emptyIntStream)
-  val stream2 = Stream.cons(1, Stream.cons(2, emptyIntStream))
+  val stream1 = Stream(1)
+  val stream2 = Stream(1, 2)
 
   def isEven(i: Int) = i % 2 == 0
   def isOdd(i: Int) = i % 2 != 0
+  def add1Stream(i: Int) = Stream(i + 1)
 
   "toList" should {
     "convert a stream to a list" in {
@@ -83,6 +84,72 @@ class StreamSpec extends Specification with ScalaCheck {
 
     "succeed for non-empty stream" in {
       stream1.headOption mustEqual Some(1)
+    }
+  }
+
+  "flatMap" should {
+    "obey left identity law" in {
+      prop { n: Int =>
+        Stream(n).flatMap(add1Stream).toList mustEqual {
+          add1Stream(n).toList
+        }
+      }
+    }
+
+    "obey right identity law" in {
+      prop { n: Int =>
+        Stream(n).flatMap(Stream(_)).toList mustEqual List(n)
+      }
+    }
+
+    "obey associativity law" in {
+      def add2Stream(i: Int) = Stream(i + 2)
+
+      prop { n: Int =>
+        val streamN = Stream(n)
+
+        streamN.flatMap(add1Stream).flatMap(add2Stream).toList mustEqual {
+          streamN.flatMap(x => add1Stream(x).flatMap(add2Stream)).toList
+        }
+      }
+    }
+  }
+
+  "map" should {
+    "succeed with an empty stream" in {
+      emptyIntStream.map(isOdd) mustEqual emptyIntStream
+    }
+
+    "succeed with a non-empty stream" in {
+      stream1.map(isOdd).toList mustEqual List(true)
+    }
+  }
+
+  "filter" should {
+    "succeed with an empty stream" in {
+      emptyIntStream.filter(isOdd) mustEqual emptyIntStream
+    }
+
+    "filter out non-matching items" in {
+      stream1.filter(isEven) mustEqual emptyIntStream
+    }
+
+    "retain matching items" in {
+      stream1.filter(isOdd).toList mustEqual List(1)
+    }
+  }
+
+  "append" should {
+    "append a non-empty stream to an empty stream" in {
+      emptyIntStream.append(stream1).toList mustEqual List(1)
+    }
+
+    "append an empty stream to a non-empty stream" in {
+      stream1.append(emptyIntStream).toList mustEqual List(1)
+    }
+
+    "join two non-empty streams" in {
+      stream1.append(stream2).toList mustEqual List(1, 1, 2)
     }
   }
 }
