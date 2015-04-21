@@ -91,7 +91,31 @@ object Stream {
     go(0, 1)
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
-}
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+    val emptyA: Stream[A] = empty
 
+    def go(s: S, a: A): Stream[A] =
+      cons(
+        a,
+        f(s).fold(emptyA) { nextValState =>
+          go(nextValState._2, nextValState._1)
+        }
+      )
+
+    f(z).fold(emptyA) { nextValState =>
+      go(nextValState._2, nextValState._1)
+    }
+  }
+
+  def fibs_unfold: Stream[Int] =
+    unfold((0, 1)) { s => Option((s._1, (s._2, s._1 + s._2))) }
+
+  def from_unfold(n: Int): Stream[Int] =
+    unfold(n) { s => Option((s, s + 1)) }
+
+  def constant_unfold[A](a: A): Stream[A] =
+    unfold(a) { s => Option((s, s)) }
+
+  val ones_unfold: Stream[Int] = unfold(1) { s => Option((s, s)) }
+}
 

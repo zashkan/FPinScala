@@ -178,5 +178,40 @@ class StreamSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "fibs_unfold" should {
+    "generate Fibonacci numbers" in {
+      Stream.fibs_unfold.take(10).toList mustEqual {
+        List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+      }
+    }
+  }
+
+  "from_unfold" should {
+    "generate a stream from the given start" in {
+      val x = 1
+      val n = 100
+
+      Stream.from_unfold(x).take(n).toList mustEqual {
+        (x to x + n - 1).toList
+      }
+    }
+  }
+
+  "constant_unfold" should {
+    "return an infinite stream of the given value" in {
+      val x = 1
+      val n = 100
+
+      Stream.constant_unfold(x).take(n).toList mustEqual List.fill(n)(x)
+    }
+  }
+
+  "ones_unfold" should {
+    "return an infinite stream of 1s" in {
+      val n = 100
+      Stream.ones_unfold.take(n).toList mustEqual List.fill(n)(1)
+    }
+  }
 }
 
