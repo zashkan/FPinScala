@@ -300,5 +300,23 @@ class StreamSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "startsWith" should {
+    "succeed for an empty superstream" in {
+      emptyIntStream.startsWith(stream1) mustEqual false
+    }
+
+    "succeed for an empty substream" in {
+      stream1.startsWith(emptyIntStream) mustEqual true
+    }
+
+    "succeed for a smaller superstream" in {
+      stream1.startsWith(stream2) mustEqual false
+    }
+
+    "succeed for a smaller substream" in {
+      stream2.startsWith(stream1) mustEqual true
+    }
+  }
 }
 

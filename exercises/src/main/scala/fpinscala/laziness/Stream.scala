@@ -62,7 +62,8 @@ trait Stream[+A] {
   def append[B >: A](s: => Stream[B]): Stream[B] =
     foldRight(s) { (a, b) => Cons(() => a, () => b) }
 
-  def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
+  def startsWith[B >: A](s: Stream[B]): Boolean =
+    zipAll(s).takeWhile(_._2 != None).forAll { os => os._1 == os._2 }
 
   def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
     Stream.unfold(this -> s2) {
