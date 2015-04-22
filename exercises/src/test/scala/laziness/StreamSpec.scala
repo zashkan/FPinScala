@@ -7,9 +7,12 @@ class StreamSpec extends Specification with ScalaCheck {
   val emptyIntStream = Stream.empty[Int]
   val stream1 = Stream(1)
   val stream2 = Stream(1, 2)
+  val o1 = Option(1)
+  val o2 = Option(2)
 
   def isEven(i: Int) = i % 2 == 0
   def isOdd(i: Int) = i % 2 != 0
+  def add(x: Int, y: Int) = x + y
   def add1Stream(i: Int) = Stream(i + 1)
 
   "toList" should {
@@ -211,6 +214,90 @@ class StreamSpec extends Specification with ScalaCheck {
     "return an infinite stream of 1s" in {
       val n = 100
       Stream.ones_unfold.take(n).toList mustEqual List.fill(n)(1)
+    }
+  }
+
+  "map_unfold" should {
+    "succeed with an empty stream" in {
+      Stream.map_unfold(emptyIntStream)(isOdd) mustEqual emptyIntStream
+    }
+
+    "succeed with a non-empty stream" in {
+      Stream.map_unfold(stream2)(isOdd).toList mustEqual {
+        List(true, false)
+      }
+    }
+  }
+
+  "take_unfold" should {
+    "take nothing from an empty stream" in {
+      prop { i: Int =>
+        Stream.take_unfold(emptyIntStream, i) mustEqual emptyIntStream
+      }
+    }
+
+    "take entire stream if asked for more than stream contains" in {
+      Stream.take_unfold(stream1, 2).toList mustEqual stream1.toList
+    }
+
+    "take part of stream if asked for less than stream contains" in {
+      Stream.take_unfold(stream2, 1).toList mustEqual List(1)
+    }
+  }
+
+  "takeWhile_unfold" should {
+    "take nothing from an empty stream" in {
+      Stream.takeWhile_unfold(emptyIntStream, isEven) mustEqual {
+        emptyIntStream
+      }
+    }
+
+    "take nothing if no items match predicate" in {
+      Stream.takeWhile_unfold(stream1, isEven) mustEqual emptyIntStream
+    }
+
+    "take items only as long as they match predicate" in {
+      Stream.takeWhile_unfold(stream2, isOdd).toList mustEqual List(1)
+    }
+  }
+
+  "zipWith" should {
+    "evaluate to an empty stream if zipping anything to an empty stream" in {
+      Stream.zipWith(emptyIntStream, stream1)(add) mustEqual {
+        emptyIntStream
+      }
+    }
+
+    "evaluate to an empty stream if zipping an empty stream to anything" in {
+      Stream.zipWith(stream1, emptyIntStream)(add) mustEqual {
+        emptyIntStream
+      }
+    }
+
+    "evaluate to a stream of the shorter length if zipping streams of different lengths" in {
+      Stream.zipWith(stream1, stream2)(add).toList mustEqual List(2)
+    }
+
+    "evaluate to a stream of the length of the lengths of input streams of equal length" in {
+      Stream.zipWith(stream2, stream2)(add).toList mustEqual List(2, 4)
+    }
+  }
+
+  "zipAll" should {
+    "evaluate to an empty stream if zipping empty streams" in {
+      emptyIntStream.zipAll(emptyIntStream) mustEqual emptyIntStream
+    }
+
+    "evaluate to a stream of pairs with missing elements if zipping streams of unequal length" in {
+      stream2.zipAll(stream1).toList mustEqual {
+        List(o1 -> o1, Option(2) -> None)
+      }
+    }
+
+    "evaluate to a stream of pairs with no missing elements if zipping streams of equal length" in {
+      stream2.zipAll(stream2).toList mustEqual {
+        List(o1 -> o1, o2 -> o2)
+      }
     }
   }
 }

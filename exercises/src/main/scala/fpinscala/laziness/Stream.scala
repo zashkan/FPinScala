@@ -63,6 +63,18 @@ trait Stream[+A] {
     foldRight(s) { (a, b) => Cons(() => a, () => b) }
 
   def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
+    Stream.unfold(this -> s2) {
+      case (Cons(ha, ta), Cons(hb, tb)) =>
+        Option(Option(ha()) -> Option(hb()) -> (ta() -> tb()))
+      case (Cons(ha, ta), Empty) =>
+        Option(Option(ha()) -> None -> (ta() -> Empty))
+      case (Empty, Cons(hb, tb)) =>
+        Option(None -> Option(hb()) -> (Empty -> tb()))
+      case (Empty, Empty) => None
+
+    }
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -117,5 +129,32 @@ object Stream {
     unfold(a) { s => Option((s, s)) }
 
   val ones_unfold: Stream[Int] = unfold(1) { s => Option((s, s)) }
+
+  def map_unfold[A, B](as: Stream[A])(f: A => B): Stream[B] =
+    unfold(as) {
+      case Cons(h, t) => Option(f(h()) -> t())
+      case Empty => None
+    }
+
+  def take_unfold[A](as: Stream[A], n: Int): Stream[A] =
+    unfold(as -> n) {
+      case (Cons(h, t), n) if (n > 0) => Option(h() -> (t(), n - 1))
+      case _ => None
+    }
+
+  def takeWhile_unfold[A](as: Stream[A], p: A => Boolean): Stream[A] =
+    unfold(as) {
+      case Cons(h, t) =>
+        val hForced = h()
+        if (p(hForced)) Option(hForced -> t()) else None
+      case _ => None
+    }
+
+  def zipWith[A, B, C](as: Stream[A], bs: Stream[B])(f: (A, B) => C): Stream[C] =
+    unfold(as -> bs) {
+      case (Cons(ha, ta), Cons(hb, tb)) =>
+        Option(f(ha(), hb()) -> (ta() -> tb()))
+      case _ => None
+    }
 }
 
