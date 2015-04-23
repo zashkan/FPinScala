@@ -49,9 +49,7 @@ trait Stream[+A] {
   // writing your own function signatures.
 
   def flatMap[B](f: A => Stream[B]): Stream[B] =
-    foldRight(Empty: Stream[B]) { (a, b) =>
-      f(a).foldRight(b) { (a, b) => Cons(() => a, () => b) }
-    }
+    foldRight(Empty: Stream[B]) { (a, b) => f(a).append(b) }
 
   def map[B](f: A => B): Stream[B] =
     flatMap { a => Cons(() => f(a), () => Empty) }
