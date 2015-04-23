@@ -328,5 +328,15 @@ class StreamSpec extends Specification with ScalaCheck {
       stream2.tails.flatMap(identity).toList mustEqual List(1, 2, 2)
     }
   }
+
+  "scanRight" should {
+    "succeed for an empty stream" in {
+      emptyIntStream.scanRight(0)(add).toList mustEqual List(0)
+    }
+
+    "succeed for a non-empty stream" in {
+      stream2.scanRight(0)(add).toList mustEqual List(3, 2, 0)
+    }
+  }
 }
 

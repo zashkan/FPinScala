@@ -73,6 +73,14 @@ trait Stream[+A] {
       }
     }
 
+  def scanRight[B](z: B)(f: (A, B) => B): Stream[B] =
+    /*
+    Usually it's bad style to use Option.get, but in this case we can
+    make an exception because by definition this stream will never be
+    empty, so in other words it will always have a head.
+    */
+    foldRight(Stream(z)) { (a, b) => cons(f(a, b.headOption.get), b) }
+
   def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
     Stream.unfold(this -> s2) {
       case (Cons(ha, ta), Cons(hb, tb)) =>
