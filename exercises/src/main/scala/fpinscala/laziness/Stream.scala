@@ -65,6 +65,14 @@ trait Stream[+A] {
   def startsWith[B >: A](s: Stream[B]): Boolean =
     zipAll(s).takeWhile(_._2 != None).forAll { os => os._1 == os._2 }
 
+  def tails: Stream[Stream[A]] =
+    unfold(this) { s =>
+      s match {
+        case Cons(h, t) => Option(s -> t())
+        case _ => None
+      }
+    }
+
   def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
     Stream.unfold(this -> s2) {
       case (Cons(ha, ta), Cons(hb, tb)) =>
