@@ -52,12 +52,26 @@ object RNG {
     if (x == zMax) double(rng2) else (x.toDouble / zMax, rng2)
   }
 
+  def intDouble(rng: RNG): ((Int,Double), RNG) = {
+    val (i, rng2) = rng.nextInt
+    val (d, rng3) = double(rng2)
 
-  def intDouble(rng: RNG): ((Int,Double), RNG) = ???
+    i -> d -> rng3
+  }
 
-  def doubleInt(rng: RNG): ((Double,Int), RNG) = ???
+  def doubleInt(rng: RNG): ((Double,Int), RNG) = {
+    val ((i, d), rng2) = intDouble(rng)
 
-  def double3(rng: RNG): ((Double,Double,Double), RNG) = ???
+    d -> i -> rng2
+  }
+
+  def double3(rng: RNG): ((Double,Double,Double), RNG) = {
+    val (d1, rng2) = double(rng)
+    val (d2, rng3) = double(rng2)
+    val (d3, rng4) = double(rng3)
+
+    (d1, d2, d3) -> rng4
+  }
 
   def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
 
