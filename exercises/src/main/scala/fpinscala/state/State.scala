@@ -39,7 +39,19 @@ object RNG {
     (if (x < 0) -(x + 1) else x, rng2)
   }
 
-  def double(rng: RNG): (Double, RNG) = ???
+  /*
+  Repeatedly generating random numbers until we get one that fits the
+  properties we want is less biased than mapping multiple numbers from
+  the domain into one number in the range.
+  */
+  @annotation.tailrec
+  def double(rng: RNG): (Double, RNG) = {
+    val zMax = Int.MaxValue
+    val (x, rng2) = nonNegativeInt(rng)
+
+    if (x == zMax) double(rng2) else (x.toDouble / zMax, rng2)
+  }
+
 
   def intDouble(rng: RNG): ((Int,Double), RNG) = ???
 

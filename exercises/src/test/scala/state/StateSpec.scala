@@ -4,13 +4,26 @@ import org.specs2.ScalaCheck
 import fpinscala.state._
 
 class StateSpec extends Specification with ScalaCheck {
+  def rngFromSeed(seed: Long) = RNG.Simple(seed)
+
   "nonNegativeInt" should {
     "always return a non-negative integer" in {
       prop { seed: Long =>
-        val rng = RNG.Simple(seed)
+        val rng = rngFromSeed(seed)
         val randNum = RNG.nonNegativeInt(rng)._1
 
         randNum must beBetween(0, Int.MaxValue)
+      }
+    }
+  }
+
+  "double" should {
+    "always return a non-negative double less than 1" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val randDbl = RNG.double(rng)._1
+
+        randDbl must beBetween(0.0, 1.0).excludingEnd
       }
     }
   }
