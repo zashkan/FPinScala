@@ -168,5 +168,39 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "State.unit" should {
+    "insert a value into an arbitrary state transition" in {
+      prop { (x: Int, s: Int) => State.unit(x).run(s)._1 mustEqual x }
+    }
+  }
+
+  "State.map" should {
+    "map a value within an arbitrary state transition" in {
+      prop { (x: Int, s: Int) =>
+        def add1(x: Int) = x + 1
+        State.unit(x).map(add1).run(s)._1 mustEqual add1(x)
+      }
+    }
+  }
+
+  "State.map2" should {
+    "map over two values within an arbitrary state transition" in {
+      prop { (x1: Int, x2: Int, s: Int) =>
+        def add(x1: Int, x2: Int) = x1 + x2
+        State.unit[Int, Int](x1).map2(State.unit[Int, Int](x2))(add).run(s)._1 mustEqual add(x1, x2)
+      }
+    }
+  }
+
+  "State.sequence" should {
+    "string together a list of values within arbitrary states into a list of values within a single arbitrary state" in {
+      prop { (xs: List[Int], s: Int) =>
+        State.sequence(xs.map(State.unit[Int, Int])).run(s)._1 mustEqual {
+          xs
+        }
+      }
+    }
+  }
 }
 
