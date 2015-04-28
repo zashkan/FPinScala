@@ -68,5 +68,24 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "ints" should {
+    "return an empty list" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+
+        RNG.ints(0)(rng)._1 mustEqual List.empty[Int]
+      }
+    }
+
+    "return a non-empty list" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val length = 10
+
+        RNG.ints(length)(rng)._1.length mustEqual length
+      }
+    }
+  }
 }
 

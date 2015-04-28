@@ -73,7 +73,17 @@ object RNG {
     (d1, d2, d3) -> rng4
   }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+    @annotation.tailrec
+    def go(count: Int, z: (List[Int], RNG)): (List[Int], RNG) =
+      if (count < 1) z
+      else {
+        val (x, rng2) = z._2.nextInt
+        go(count - 1, (x :: z._1) -> rng2)
+      }
+
+    go(count, List.empty[Int] -> rng)
+  }
 
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
 
