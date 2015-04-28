@@ -98,5 +98,17 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "map2" should {
+    "combine two random actions into one" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+
+        betweenZeroAndOneEx(
+          RNG.map2(RNG.double_via_map, RNG.double_via_map)(_ * _)(rng)._1
+        )
+      }
+    }
+  }
 }
 
