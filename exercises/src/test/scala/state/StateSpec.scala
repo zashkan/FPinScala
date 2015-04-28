@@ -130,5 +130,18 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "nonNegativeLessThan" should {
+    "always return a positive number between 0 and n" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val n = 100
+
+        RNG.nonNegativeLessThan(n)(rng)._1 must {
+          beBetween(0, n).excludingEnd
+        }
+      }
+    }
+  }
 }
 
