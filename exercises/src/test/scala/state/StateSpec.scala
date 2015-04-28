@@ -87,5 +87,16 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "double_via_map" should {
+    "always return a non-negative double less than 1" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val randDbl = RNG.double_via_map(rng)._1
+
+        betweenZeroAndOneEx(randDbl)
+      }
+    }
+  }
 }
 
