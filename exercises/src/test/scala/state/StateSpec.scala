@@ -110,5 +110,25 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "sequence" should {
+    "join an empty list into a random state transition over an empty list" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val l = List.empty[RNG.Rand[Int]]
+
+        RNG.sequence(l)(rng)._1 mustEqual l
+      }
+    }
+
+    "join a list of random state transitions into a random state transition over a list" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val l = List(1, 2, 3)
+
+        RNG.sequence(l.map(RNG.unit))(rng)._1 mustEqual l
+      }
+    }
+  }
 }
 
