@@ -111,6 +111,12 @@ object RNG {
       val mod = a % n
       if (a + (n - 1) - mod >= 0) unit(mod) else nonNegativeLessThan(n)
     }
+
+  def map_via_flatMap[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(s)(f andThen unit)
+
+  def map2_via_flatMap[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(ra)(a => map_via_flatMap(rb)(b => f(a, b)))
 }
 
 case class State[S,+A](run: S => (A, S)) {

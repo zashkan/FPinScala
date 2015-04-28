@@ -143,5 +143,30 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "map_via_flatMap" should {
+    "map over a random state transition" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+        val x = 1
+
+        RNG.map_via_flatMap(RNG.unit(x))(_ + 1)(rng)._1 mustEqual {
+          x + 1
+        }
+      }
+    }
+  }
+
+  "map2_via_flatMap" should {
+    "combine two random actions into one" in {
+      prop { seed: Long =>
+        val rng = rngFromSeed(seed)
+
+        betweenZeroAndOneEx(
+          RNG.map2_via_flatMap(RNG.double_via_map, RNG.double_via_map)(_ * _)(rng)._1
+        )
+      }
+    }
+  }
 }
 
