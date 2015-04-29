@@ -202,5 +202,18 @@ class StateSpec extends Specification with ScalaCheck {
       }
     }
   }
+
+  "State.simulateMachine" should {
+    "succeed at running simulation in book" in {
+      State.simulateMachine(
+        List(
+          Coin, Turn,
+          Coin, Turn,
+          Coin, Turn,
+          Coin, Turn
+        )
+      ).run(Machine(true, 5, 10))._1 mustEqual (14 -> 1)
+    }
+  }
 }
 
