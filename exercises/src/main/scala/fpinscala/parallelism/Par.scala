@@ -16,6 +16,30 @@ object Par {
     def cancel(evenIfRunning: Boolean): Boolean = false 
   }
   
+  /*
+  Par.map2 needs to return Par[SomeType] because it's used in the book
+  (p. 100) in a call: Par.map2(sum(l), sum(r))(_ + _) within a function
+  (sum) which returns Par[Int].
+
+  In its first parameter list, it needs to take two parameters of
+  Par[T1] and Par[T2] because in the above call, it's called with the
+  arguments sum(l) and sum(r), which we've already seen must be of type
+  Par[SomeType].
+
+  In its second parameter list, it needs to take a function of type (T1,
+  T2) => SomeType because it's called with the argument '_ + _' which
+  takes two arguments and returns SomeType.
+
+  So, replacing
+
+    - T1 with A,
+
+    - T2 with B, and
+
+    - SomeType with C,
+
+  We can infer the actual type to be as follows:
+  */
   def map2[A,B,C](a: Par[A], b: Par[B])(f: (A,B) => C): Par[C] = // `map2` doesn't evaluate the call to `f` in a separate logical thread, in accord with our design choice of having `fork` be the sole function in the API for controlling parallelism. We can always do `fork(map2(a,b)(f))` if we want the evaluation of `f` to occur in a separate thread.
     (es: ExecutorService) => {
       val af = a(es) 
