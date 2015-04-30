@@ -100,6 +100,9 @@ object RNG {
       map2(ra, rb) { (a, b) => a :: b }
     }
 
+  def ints_via_sequence(count: Int)(rng: RNG): (List[Int], RNG) =
+    sequence(List.fill(count) { rng2: RNG => rng2.nextInt })(rng)
+
   def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = { rng =>
     val (a, rng2) = f(rng)
     g(a)(rng2)
