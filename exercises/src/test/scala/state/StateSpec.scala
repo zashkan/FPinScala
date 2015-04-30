@@ -7,6 +7,7 @@ class StateSpec extends Specification with ScalaCheck {
   def rngFromSeed(seed: Long) = RNG.Simple(seed)
   def betweenZeroAndOneEx(x: Double) =
     x must beBetween(0.0, 1.0).excludingEnd
+  val machine = Machine(true, 5, 10)
 
   "nonNegativeInt" should {
     "always return a non-negative integer" in {
@@ -223,6 +224,21 @@ class StateSpec extends Specification with ScalaCheck {
   }
 
   "State.simulateMachine" should {
+    "not change the state if given no input" in {
+      State.simulateMachine(List.empty[Input]).run(machine)._1 mustEqual {
+        10 -> 5
+      }
+    }
+
+    "succeed if given invalid input" in {
+      State.simulateMachine(
+        List(
+          Turn, Turn,
+          Coin, Coin
+        )
+      ).run(machine)._1 mustEqual (11 -> 5)
+    }
+
     "succeed at running simulation in book" in {
       State.simulateMachine(
         List(
@@ -231,7 +247,7 @@ class StateSpec extends Specification with ScalaCheck {
           Coin, Turn,
           Coin, Turn
         )
-      ).run(Machine(true, 5, 10))._1 mustEqual (14 -> 1)
+      ).run(machine)._1 mustEqual (14 -> 1)
     }
   }
 }
