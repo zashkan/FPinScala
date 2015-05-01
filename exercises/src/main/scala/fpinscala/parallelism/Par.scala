@@ -3,6 +3,26 @@ package fpinscala.parallelism
 import java.util.concurrent._
 
 object Par {
+  /*
+  Par[A] needs to be a type that can contain a computation of type A and
+  also yield the value when asked for it. It also needs to contain a
+  marker for whether its computation is concurrent or sequential. So one
+  possible implementation is:
+
+  case class Par[A](comp: A, concurrent: Boolean)
+
+  The above implementation doesn't allow the user to explicitly pass in
+  a parallelism strategy, which means it's using a globally-defined
+  strategy internally. If we do want to be able to specify a parallelism
+  strategy, we need to pass in a java.util.concurrent.ExecutorService
+  into each Par value. An implementation which allows this is:
+
+  case class Par[A](comp: A, strategy: ExecutorService)
+
+  With this approach, the 'run' function can use
+  'Executor.submit(callable: Callable[T]): Future[T]' to actually run
+  the tasks.
+  */
   type Par[A] = ExecutorService => Future[A]
   
   def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
