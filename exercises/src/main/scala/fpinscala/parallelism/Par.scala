@@ -28,14 +28,14 @@ object Par {
   def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
 
   def unit[A](a: A): Par[A] = (es: ExecutorService) => UnitFuture(a) // `unit` is represented as a function that returns a `UnitFuture`, which is a simple implementation of `Future` that just wraps a constant value. It doesn't use the `ExecutorService` at all. It's always done and can't be cancelled. Its `get` method simply returns the value that we gave it.
-  
+
   private case class UnitFuture[A](get: A) extends Future[A] {
     def isDone = true 
     def get(timeout: Long, units: TimeUnit) = get 
     def isCancelled = false 
     def cancel(evenIfRunning: Boolean): Boolean = false 
   }
-  
+
   /*
   Par.map2 needs to return Par[SomeType] because it's used in the book
   (p. 100) in a call: Par.map2(sum(l), sum(r))(_ + _) within a function
@@ -64,9 +64,36 @@ object Par {
     (es: ExecutorService) => {
       val af = a(es) 
       val bf = b(es)
-      UnitFuture(f(af.get, bf.get)) // This implementation of `map2` does _not_ respect timeouts, and eagerly waits for the returned futures. This means that even if you have passed in "forked" arguments, using this map2 on them will make them wait. It simply passes the `ExecutorService` on to both `Par` values, waits for the results of the Futures `af` and `bf`, applies `f` to them, and wraps them in a `UnitFuture`. In order to respect timeouts, we'd need a new `Future` implementation that records the amount of time spent evaluating `af`, then subtracts that time from the available time allocated for evaluating `bf`.
+
+      new Future[C] {
+        def isDone = af.isDone && bf.isDone
+
+        def get(timeout: Long, units: TimeUnit) = {
+          val startTime = System.currentTimeMillis
+          val a = af.get(timeout, units)
+          val elapsedTime = System.currentTimeMillis - startTime
+          val b =
+            bf.get(
+              /*
+              Give the second future less time to complete because the
+              first future took some time.
+              */
+              TimeUnit.MILLISECONDS.convert(timeout, units) - elapsedTime,
+              TimeUnit.MILLISECONDS
+            )
+
+          f(a, b)
+        }
+
+        def get = get(Long.MaxValue, TimeUnit.MILLISECONDS)
+
+        def isCancelled = af.isCancelled || bf.isCancelled
+
+        def cancel(evenIfRunning: Boolean) =
+          af.cancel(evenIfRunning) && bf.cancel(evenIfRunning)
+      }
     }
-  
+
   def fork[A](a: => Par[A]): Par[A] = // This is the simplest and most natural implementation of `fork`, but there are some problems with it--for one, the outer `Callable` will block waiting for the "inner" task to complete. Since this blocking occupies a thread in our thread pool, or whatever resource backs the `ExecutorService`, this implies that we're losing out on some potential parallelism. Essentially, we're using two threads when one should suffice. This is a symptom of a more serious problem with the implementation, and we will discuss this later in the chapter.
     es => es.submit(new Callable[A] { 
       def call = a(es).get
