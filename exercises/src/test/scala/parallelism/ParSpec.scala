@@ -8,6 +8,11 @@ import fpinscala.parallelism._
 class ParSpec extends Specification with AfterAll {
   def add(x1: Int, x2: Int) = x1 + x2
   def add1(x: Int): Int = x + 1
+  def isEven(x: Int) = x % 2 == 0
+
+  val nonEmptyList = (1 to 5).toList
+  val emptyList = List.empty[Int]
+
   val es = Executors.newCachedThreadPool
 
   def afterAll = es.shutdown
@@ -42,10 +47,20 @@ class ParSpec extends Specification with AfterAll {
     }
 
     "succeed with a non-empty list" in {
-      val ls = (1 to 5).toList
+      val fut = Par.run(es)(Par.sequence(nonEmptyList.map(Par.unit(_))))
+      fut.get mustEqual nonEmptyList
+    }
+  }
 
-      val fut = Par.run(es)(Par.sequence(ls.map(Par.unit(_))))
-      fut.get mustEqual ls
+  "Par.parFilter" should {
+    "succeed with an empty list" in {
+      val fut = Par.run(es)(Par.parFilter(emptyList)(isEven))
+      fut.get mustEqual emptyList
+    }
+
+    "succeed with a non-empty list" in {
+      val fut = Par.run(es)(Par.parFilter(nonEmptyList)(isEven))
+      fut.get mustEqual nonEmptyList.filter(isEven)
     }
   }
 }

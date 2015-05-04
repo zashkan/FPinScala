@@ -113,6 +113,18 @@ object Par {
       map2(pa, pbs) { (a, bs) => a :: bs }
     }
 
+  def parMap[A, B](as: List[A])(f: A => B): Par[List[B]] =
+    fork(sequence(as.map(asyncF(f))))
+
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] =
+    fork(
+      map(
+        sequence(as.map(asyncF(a => if (f(a)) List(a) else List.empty)))
+      ) {
+        _.flatten
+      }
+    )
+
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
     p(e).get == p2(e).get
 
