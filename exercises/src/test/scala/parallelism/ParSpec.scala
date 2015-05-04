@@ -34,5 +34,19 @@ class ParSpec extends Specification with AfterAll {
       fut.get mustEqual 2
     }
   }
+
+  "Par.sequence" should {
+    "succeed with an empty list" in {
+      val fut = Par.run(es)(Par.sequence(List.empty[Par.Par[Int]]))
+      fut.get mustEqual List.empty[Int]
+    }
+
+    "succeed with a non-empty list" in {
+      val ls = (1 to 5).toList
+
+      val fut = Par.run(es)(Par.sequence(ls.map(Par.unit(_))))
+      fut.get mustEqual ls
+    }
+  }
 }
 
