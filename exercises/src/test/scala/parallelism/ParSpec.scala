@@ -7,6 +7,7 @@ import fpinscala.parallelism._
 
 class ParSpec extends Specification with AfterAll {
   def add(x1: Int, x2: Int) = x1 + x2
+  def add1(x: Int): Int = x + 1
   val es = Executors.newCachedThreadPool
 
   def afterAll = es.shutdown
@@ -23,6 +24,15 @@ class ParSpec extends Specification with AfterAll {
     individual Futures are UnitFutures which will actually never time
     out.
     */
+  }
+
+  "Par.asyncF" should {
+    "succeed at making a function asynchronous" in {
+      val par = Par.asyncF(add1)(1)
+      val fut = Par.run(es)(par)
+
+      fut.get mustEqual 2
+    }
   }
 }
 
