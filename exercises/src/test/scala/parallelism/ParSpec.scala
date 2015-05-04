@@ -1,14 +1,16 @@
 import org.specs2.mutable.Specification
+import org.specs2.ScalaCheck
 import org.specs2.specification.AfterAll
 
 import java.util.concurrent.{ Executors, TimeoutException, TimeUnit }
 
 import fpinscala.parallelism._
 
-class ParSpec extends Specification with AfterAll {
+class ParSpec extends Specification with ScalaCheck with AfterAll {
   def add(x1: Int, x2: Int) = x1 + x2
   def add1(x: Int): Int = x + 1
   def isEven(x: Int) = x % 2 == 0
+  def max2(x1: Int, x2: Int) = x1.max(x2)
 
   val nonEmptyList = (1 to 5).toList
   val emptyList = List.empty[Int]
@@ -61,6 +63,18 @@ class ParSpec extends Specification with AfterAll {
     "succeed with a non-empty list" in {
       val fut = Par.run(es)(Par.parFilter(nonEmptyList)(isEven))
       fut.get mustEqual nonEmptyList.filter(isEven)
+    }
+  }
+
+  "Par.parFold" should {
+    "succeed with an arbitrary IndexedSeq" in {
+      prop { xs: IndexedSeq[Int] =>
+        val zMin = Int.MinValue
+        val seqMax = xs.fold(zMin)(max2)
+        val fut = Par.run(es)(Par.parFold(xs, zMin)(max2))
+
+        fut.get mustEqual seqMax
+      }
     }
   }
 }
