@@ -71,9 +71,21 @@ class ParSpec extends Specification with ScalaCheck with AfterAll {
       prop { xs: IndexedSeq[Int] =>
         val zMin = Int.MinValue
         val seqMax = xs.fold(zMin)(max2)
-        val fut = Par.run(es)(Par.parFold(xs, zMin)(max2))
+        val fut = Par.run(es)(Par.parFold(xs, zMin)(identity)(max2))
 
         fut.get mustEqual seqMax
+      }
+    }
+  }
+
+  "Par.wordCount" should {
+    "succeed with arbitrary paragraphs" in {
+      prop { paras: List[String] =>
+        val expectedCount =
+          paras.foldRight(0) { (a, b) => b + a.split(' ').length }
+        val fut = Par.run(es)(Par.wordCount(paras))
+
+        fut.get mustEqual expectedCount
       }
     }
   }

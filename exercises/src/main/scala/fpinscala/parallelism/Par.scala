@@ -125,14 +125,14 @@ object Par {
       }
     )
 
-  def parFold[A](as: IndexedSeq[A], z: A)(merge: (A, A) => A): Par[A] = {
+  def parFold[A, B](as: IndexedSeq[A], z: B)(project: A => B)(merge: (B, B) => B): Par[B] = {
     import scala.util.control.TailCalls._
 
-    def go(as: IndexedSeq[A]): TailRec[Par[A]] = {
+    def go(as: IndexedSeq[A]): TailRec[Par[B]] = {
       val asLength = as.length
 
       if (asLength < 1) done(unit(z))
-      else if (asLength == 1) done(unit(as.head))
+      else if (asLength == 1) done(unit(project(as.head)))
       else {
         val (l, r) = as.splitAt(as.length / 2)
 
@@ -145,6 +145,9 @@ object Par {
 
     fork(go(as).result)
   }
+
+  def wordCount(paras: List[String]): Par[Int] =
+    parFold(paras.toIndexedSeq, 0)(_.split(' ').length)(_ + _)
 
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
     p(e).get == p2(e).get
