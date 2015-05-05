@@ -14,6 +14,7 @@ class ParSpec extends Specification with ScalaCheck with AfterAll {
 
   val nonEmptyList = (1 to 5).toList
   val emptyList = List.empty[Int]
+  val p1 = Par.unit(1)
 
   val es = Executors.newCachedThreadPool
 
@@ -87,6 +88,26 @@ class ParSpec extends Specification with ScalaCheck with AfterAll {
 
         fut.get mustEqual expectedCount
       }
+    }
+  }
+
+  "Par.map3" should {
+    "succeed" in {
+      val fut =
+        Par.run(es)(Par.map3(p1, p1, p1) { (a, b, c) => a + b + c })
+
+      fut.get mustEqual 3
+    }
+  }
+
+  "Par.map4" should {
+    "succeed" in {
+      val fut =
+        Par.run(es) {
+          Par.map4(p1, p1, p1, p1) { (a, b, c, d) => a + b + c + d }
+        }
+
+      fut.get mustEqual 4
     }
   }
 }

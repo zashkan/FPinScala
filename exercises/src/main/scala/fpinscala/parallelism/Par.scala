@@ -149,6 +149,29 @@ object Par {
   def wordCount(paras: List[String]): Par[Int] =
     parFold(paras.toIndexedSeq, 0)(_.split(' ').length)(_ + _)
 
+  def map3
+    [A, B, C, D]
+    (pa: Par[A], pb: Par[B], pc: Par[C])
+    (f: (A, B, C) => D):
+    Par[D] =
+    map2(
+      map2(pa, pb) { (a, b) => a -> b },
+      pc
+    ) { case ((a, b), c) => f(a, b, c) }
+
+  def map4
+    [A, B, C, D, E]
+    (pa: Par[A], pb: Par[B], pc: Par[C], pd: Par[D])
+    (f: (A, B, C, D) => E):
+    Par[E] =
+    map2(
+      map2(
+        map2(pa, pb) { (a, b) => a -> b },
+        pc
+      ) { (ab, c) => ab -> c },
+      pd
+    ) { case (((a, b), c), d) => f(a, b, c, d) }
+
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
     p(e).get == p2(e).get
 
