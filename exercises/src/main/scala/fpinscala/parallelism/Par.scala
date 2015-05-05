@@ -175,6 +175,32 @@ object Par {
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
     p(e).get == p2(e).get
 
+  /*
+  Exercise 7.7
+
+  Given map(y)(id) == y, .......................... (1)
+
+  Prove: map(map(y)(g))(f) == map(y)(f compose g) . (2)
+
+  If (2) holds, then
+
+    map(map(y)(g))(id) == map(y)(id compose g)
+
+  Applying (1):
+
+    map(y)(g) == map(y)(g)
+
+  Therefore proven. Also,
+
+    map(map(y)(id))(f) == map(y)(f compose id)
+
+  Applying (1):
+
+    map(y)(f) == map(y)(f)
+
+  Therefore proven (again).
+  */
+
   def delay[A](fa: => Par[A]): Par[A] = 
     es => fa(es)
 
