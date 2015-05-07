@@ -176,7 +176,7 @@ object Par {
     p(e).get == p2(e).get
 
   /*
-  Exercise 7.7
+  # Exercise 7.7
 
   Given map(y)(id) == y, .......................... (1)
 
@@ -199,6 +199,15 @@ object Par {
     map(y)(f) == map(y)(f)
 
   Therefore proven (again).
+
+  # Exercise 7.9
+
+  Given a thread pool of size n, we can create a deadlock with this
+  implementation of 'fork' by wrapping up n + 1 consecutive calls to
+  'fork', which boil down to n + 1 consecutive (and blocking) calls to
+  'ExecutorService#submit'. Each call asks the 'ExecutorService' for a
+  new thread to run in, but there are only n threads, so the last call
+  will wait forever (deadlocked) for a new thread.
   */
 
   def delay[A](fa: => Par[A]): Par[A] = 
