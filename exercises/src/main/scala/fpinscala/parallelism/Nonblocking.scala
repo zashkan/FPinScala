@@ -167,17 +167,24 @@ object Nonblocking {
         }
 
     // see `Nonblocking.scala` answers file. This function is usually called something else!
-    def chooser[A,B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+    def chooser[A, B](p: Par[A])(f: A => Par[B]): Par[B] =
+      es =>
+        new Future[B] {
+          def apply(k: B => Unit)(kErr: Throwable => Unit): Unit =
+            p(es)(f(_)(es)(k)(kErr))(throw _)
+        }
 
-    def flatMap[A,B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+    def flatMap[A,B](p: Par[A])(f: A => Par[B]): Par[B] = chooser(p)(f)
 
-    def choiceViaChooser[A](p: Par[Boolean])(f: Par[A], t: Par[A]): Par[A] =
-      ???
+    def choiceViaChooser
+      [A]
+      (p: Par[Boolean])
+      (t: Par[A], f: Par[A]):
+      Par[A] =
+      chooser(p)(if (_) t else f)
 
     def choiceNChooser[A](p: Par[Int])(choices: List[Par[A]]): Par[A] =
-      ???
+      chooser(p)(choices(_))
 
     def join[A](p: Par[Par[A]]): Par[A] =
       ???
