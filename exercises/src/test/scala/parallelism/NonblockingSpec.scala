@@ -14,5 +14,15 @@ class NonblockingSpec extends Specification with AfterAll {
       Par.run(es)(Par.delay(1 / 0)) must throwA[ArithmeticException]
     }
   }
+
+  "choiceViaChoiceN" should {
+    "succeed for true choice" in {
+      Par.run(es)(Par.choiceViaChoiceN(Par.unit(true))(Par.unit(1), Par.unit(0))) mustEqual 1
+    }
+
+    "succeed for false choice" in {
+      Par.run(es)(Par.choiceViaChoiceN(Par.unit(false))(Par.unit(1), Par.unit(0))) mustEqual 0
+    }
+  }
 }
 
