@@ -9,6 +9,8 @@ class NonblockingSpec extends Specification with AfterAll {
   val es = Executors.newCachedThreadPool
   def afterAll = es.shutdown
 
+  val kvMap = Map(1 -> Par.unit("a"), 2 -> Par.unit("b"))
+
   "Nonblocking" should {
     "Expose that an exception occurred" in {
       Par.run(es)(Par.delay(1 / 0)) must throwA[ArithmeticException]
@@ -22,6 +24,18 @@ class NonblockingSpec extends Specification with AfterAll {
 
     "succeed for false choice" in {
       Par.run(es)(Par.choiceViaChoiceN(Par.unit(false))(Par.unit(1), Par.unit(0))) mustEqual 0
+    }
+  }
+
+  "choiceMap" should {
+    "succeed if key in map" in {
+      Par.run(es)(Par.choiceMap(Par.unit(1))(kvMap)) mustEqual "a"
+    }
+
+    "fail if key not in map" in {
+      Par.run(es)(Par.choiceMap(Par.unit(3))(kvMap)) must {
+        throwA[NoSuchElementException]
+      }
     }
   }
 }

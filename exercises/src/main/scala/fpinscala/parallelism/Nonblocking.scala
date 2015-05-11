@@ -159,8 +159,12 @@ object Nonblocking {
       Par[A] =
       choiceN(map(a)(if (_) 0 else 1))(List(ifTrue, ifFalse))
 
-    def choiceMap[K,V](p: Par[K])(ps: Map[K,Par[V]]): Par[V] =
-      ???
+    def choiceMap[K, V](p: Par[K])(ps: Map[K, Par[V]]): Par[V] =
+      es =>
+        new Future[V] {
+          def apply(k: V => Unit)(kErr: Throwable => Unit): Unit =
+            p(es)(ps(_)(es)(k)(kErr))(throw _)
+        }
 
     // see `Nonblocking.scala` answers file. This function is usually called something else!
     def chooser[A,B](p: Par[A])(f: A => Par[B]): Par[B] =
