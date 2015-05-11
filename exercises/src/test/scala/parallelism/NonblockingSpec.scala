@@ -62,5 +62,17 @@ class NonblockingSpec extends Specification with AfterAll {
       }
     }
   }
+
+  "joinViaFlatMap" should {
+    "succeed" in {
+      Par.run(es)(Par.joinViaFlatMap(Par.unit(p1))) mustEqual 1
+    }
+  }
+
+  "flatMapViaJoin" should {
+    "succeed" in {
+      Par.run(es)(Par.flatMapViaJoin(p1)(a => Par.unit(a + 1))) mustEqual 2
+    }
+  }
 }
 

@@ -187,13 +187,16 @@ object Nonblocking {
       chooser(p)(choices(_))
 
     def join[A](p: Par[Par[A]]): Par[A] =
-      ???
+      es =>
+        new Future[A] {
+          def apply(k: A => Unit)(kErr: Throwable => Unit): Unit =
+            p(es)(_(es)(k)(kErr))(kErr)
+        }
 
-    def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] =
-      ???
+    def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] = flatMap(a)(identity)
 
-    def flatMapViaJoin[A,B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+    def flatMapViaJoin[A, B](p: Par[A])(f: A => Par[B]): Par[B] =
+      join(map(p)(f))
 
     /* Gives us infix syntax for `Par`. */
     implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
