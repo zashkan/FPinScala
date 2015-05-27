@@ -50,19 +50,74 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  def tail[A](l: List[A]): List[A] = l match {
+    //case Nil => sys.error("tail of Nil list")
+    case Nil => Nil
+    case Cons(x, xs) => xs
+  }
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  def setHead[A](l: List[A], h: A): List[A] = l match {
+    case Nil => Nil
+    case Cons(_, xs) => Cons(h, xs) 
+  }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
+  def drop[A](l: List[A], n: Int): List[A] = {
+    if (n<=0) l
+    else l match {
+      case Nil => Nil
+      case Cons(x,xs) => drop(xs,n-1)
+    }
+  }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
+    case Nil => Nil
+    case Cons(x,xs) =>
+      if (f(x))
+        dropWhile(xs, f)
+      else
+        l
+  }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  def init[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(_,Nil) => Nil
+    case Cons(x, xs) => Cons(x, init(xs))
+  }
 
   def length[A](l: List[A]): Int = sys.error("todo")
 
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
 
   def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+
+  // def main(args: Array[String]): Unit =
+  //   println("000")
+    // def main(args: Array[String]): Unit ={
+    // val a = List(1,2,3)
+    // println(a)
+    // //println(a.sum)
+  
 }
+
+object myModule {
+  def main(args: Array[String]): Unit ={
+    val a = List(1,2,3)
+    println(a)
+    println(List.sum(a))
+    println(List.tail(a))
+    println(List.tail(Nil))
+    println(List.setHead(a,-9))
+    println(List.setHead(Nil,-9))
+
+    println(List.drop(Nil,5))
+    println(List.drop(a,2))
+    def f(x:Int): Boolean = x==1
+
+    println(List.dropWhile(a,(t:Int)=>t==1))
+
+    println("init of %s is %s".format(a, List.init(a)))
+    
+  }
+   
+}
+
