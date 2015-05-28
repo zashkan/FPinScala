@@ -40,6 +40,7 @@ object List { // `List` companion object. Contains functions for creating and wo
   def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = // Utility functions
     as match {
       case Nil => z
+      //case Cons(0.0, xs) => 0.0
       case Cons(x, xs) => f(x, foldRight(xs, z)(f))
     }
 
@@ -78,30 +79,88 @@ object List { // `List` companion object. Contains functions for creating and wo
         l
   }
 
+  def dropWhile2[A](l: List[A])(f: A => Boolean): List[A] = l match {
+    case Cons(h, t) if f(h) => dropWhile2(t)(f)
+    case _ => l
+  }
+
   def init[A](l: List[A]): List[A] = l match {
     case Nil => Nil
     case Cons(_,Nil) => Nil
     case Cons(x, xs) => Cons(x, init(xs))
   }
 
-  def length[A](l: List[A]): Int = sys.error("todo")
+  def length[A](l: List[A]): Int = {
+    foldRight(l, 0)((x,y) => y + 1)
+  }
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = {
+    @annotation.tailrec
+    def go[A,B](l: List[A], z: B, acc: B)(f: (B, A) => B): B = l match {
+      case Nil => acc
+      case Cons(a, as) => go(as, z, f(acc, a))(f)
+    }
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+    go(l, z, z)(f)
+  }
 
-  // def main(args: Array[String]): Unit =
-  //   println("000")
-    // def main(args: Array[String]): Unit ={
-    // val a = List(1,2,3)
-    // println(a)
-    // //println(a.sum)
+  def sum3(ns: List[Int]) =
+    foldLeft(ns, 0)(_ + _)
+
+  def product3(ns: List[Int]) =
+    foldLeft(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
+
+  def length2[A](l: List[A]): Int = {
+    foldLeft(l, 0)((x,y) => x + 1)
+  }
+
+  def reverse[A](l: List[A]): List[A] = {
+    @annotation.tailrec
+    def go[A](l: List[A], buff: List[A]): List[A] = l match {
+      case Nil => buff
+      case Cons(a, as) => go(as, Cons(a, buff))
+    }
+
+    go(l, Nil)
+  }
+
+  def reverse2[A](l: List[A]): List[A] = {
+    foldLeft(l, List[A]())((acc, a)=>Cons(a, acc))
+    //foldLeft(l, Nil)((acc, a)=>Cons(a, acc))  
+  }
+
+  def append2[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_ , _))
+
+  def concatenate[A](ls: List[A]*): List[A] = {
+    if (ls.isEmpty) Nil
+    else List.append2(ls.head, concatenate(ls.tail: _*))
+  }
+
+  // def add1[A](l: List[A]): List[A] = l match {
+  //   case Nil => Nil
+  //   case Cons(x,xs) => foldRight()
+  // }
+
+  def add1[A](l: List[Int]): List[Int] = foldRight(l, List[Int]())((x, y) => Cons(x + 1, y))
+ 
+  def listDblToStr[A](l: List[Double]): String = foldLeft(l, "")((acc, a) => acc + "*" + a.toString)
+
+  def listDblToListStr[A](l: List[Double]): List[String] = foldRight(l, List[String]())((x, xs) => Cons(x.toString, xs))
   
+  def map[A,B](l: List[A])(f: A => B): List[B] = foldRight(l, List[B]())((h,t) => Cons(f(h), t))
+
+  def filter[A](as: List[A])(f: A => Boolean): List[A] = foldRight(as, List[A]())((h,t) => {if (f(h)) Cons(h, t) else t})
+
+  //def filter2[A](as: List[A])(f: A => Boolean): List[A] = {
+  //  val 
+  //}
+
 }
 
 object myModule {
   def main(args: Array[String]): Unit ={
     val a = List(1,2,3)
+    val b = List(7,8)
     println(a)
     println(List.sum(a))
     println(List.tail(a))
@@ -116,7 +175,28 @@ object myModule {
     println(List.dropWhile(a,(t:Int)=>t==1))
 
     println("init of %s is %s".format(a, List.init(a)))
-    
+
+    println("dropWhile2 of %s is %s".format(a, List.dropWhile2(a)(_ == 1)))    
+    println("length of %s is %s".format(a, List.length(a)))    
+
+    println(List.sum3(a))
+    println(List.product3(a))
+    println(List.length2(a))
+
+    println(List.reverse(a))
+
+    println(List.append(a, b))
+    println(List.append2(a, b))
+
+    println(List.concatenate(a,b,a,b))
+    println(List.add1(a))
+
+    val c = List(1.5,6.3,8.8)
+    println(List.listDblToStr(c))
+    println(List.listDblToListStr(c))
+    println(List.map(c)(_.toString))
+
+    println(List.filter(a)(_>1))
   }
    
 }
