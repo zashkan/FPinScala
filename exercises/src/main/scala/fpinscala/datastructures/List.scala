@@ -151,16 +151,32 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def filter[A](as: List[A])(f: A => Boolean): List[A] = foldRight(as, List[A]())((h,t) => {if (f(h)) Cons(h, t) else t})
 
-  //def filter2[A](as: List[A])(f: A => Boolean): List[A] = {
-  //  val 
-  //}
+  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] = foldRight(l, List[B]())((h, t) => append2(f(h), t))
+
+  //def flatMap2[A,B](l: List[A])(f: A => List[B]): List[B] = concatenate(map(l)(f))
+
+  def filter2[A](l: List[A])(f: A => Boolean): List[A] = flatMap(l)(x => if (f(x)) Cons(x, Nil) else List[A]())
+
+  def addL(a: List[Int], b: List[Int]): List[Int] = a match {
+    case Nil => Nil
+    case Cons(x, xs) => b match {
+      case Nil => Nil
+      case Cons(y, ys) => Cons(x+y, addL(xs, ys))
+    } 
+  }
+
+  def zipWith[A,B](a: List[A], b: List[A])(f: (A, A) => B): List[B] = (a, b) match {
+    case (_, Nil) => Nil
+    case (Nil, _) => Nil
+    case (Cons(x, xs), Cons(y, ys)) => Cons(f(x,y), zipWith(xs, ys)(f))
+  }
 
 }
 
 object myModule {
   def main(args: Array[String]): Unit ={
     val a = List(1,2,3)
-    val b = List(7,8)
+    val b = List(9,8,7)
     println(a)
     println(List.sum(a))
     println(List.tail(a))
@@ -197,6 +213,15 @@ object myModule {
     println(List.map(c)(_.toString))
 
     println(List.filter(a)(_>1))
+
+    val d: List[Int] = List(1,2,3,5,7,9,10)
+    println(List.filter(d)(_%2==0))
+    println(List.filter2(d)(_%2==0))
+
+    println(List.flatMap(a)(i => List(i,i*2, i*3)))
+    println(List.addL(a,b))
+    println(List.zipWith(a,b)(_*_))
+
   }
    
 }
