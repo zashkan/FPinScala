@@ -1,4 +1,5 @@
 package fpinscala.datastructures
+//import scala.collection
 
 sealed trait List[+A] // `List` data type, parameterized on a type, `A`
 case object Nil extends List[Nothing] // A `List` data constructor representing the empty list
@@ -171,6 +172,28 @@ object List { // `List` companion object. Contains functions for creating and wo
     case (Cons(x, xs), Cons(y, ys)) => Cons(f(x,y), zipWith(xs, ys)(f))
   }
 
+  // @annotation.tailrec
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup,sub) match {
+    case (_, Nil) => true
+    case (Nil, _) => false
+    case (Cons(x,xs), Cons(y,ys)) => ((x==y) && hasSubsequence(xs,ys)) || hasSubsequence(xs,sub)
+  }
+
+  @annotation.tailrec
+  def startsWith[A](a: List[A], b: List[A]): Boolean = (a,b) match {
+    case (_,Nil) => true
+    case (Cons(x,xs), Cons(y,ys)) if (x==y) => startsWith(xs,ys)
+    case(_,_) => false 
+  }
+
+   @annotation.tailrec
+   def hasSubsequence2[A](sup: List[A], sub: List[A]): Boolean = (sup,sub) match {
+     case (_,Nil) => true
+     case (Nil,_) => false
+     case (_,_) if startsWith(sup,sub) => true
+     case (Cons(x,xs), _) => hasSubsequence2(xs,sub) 
+   }
+
 }
 
 object myModule {
@@ -186,7 +209,7 @@ object myModule {
 
     println(List.drop(Nil,5))
     println(List.drop(a,2))
-    def f(x:Int): Boolean = x==1
+    def f(x:Int): Boolean = x==3
 
     println(List.dropWhile(a,(t:Int)=>t==1))
 
@@ -222,6 +245,21 @@ object myModule {
     println(List.addL(a,b))
     println(List.zipWith(a,b)(_*_))
 
+    var cols: Map[Char,Int] = Map()
+    cols += ('I' -> 5)
+    println(cols)
+
+    val l: List[Int] = List(1,3,2,2,6,5)
+    println("sub: " + List.hasSubsequence(l, List(2,2,5)))
+    println("sub2: " + List.hasSubsequence2(l, List(2,2))) 
+    println("start: " + List.startsWith(List(1,2,3,4), List()))
+
+    val t = Branch(Branch(Leaf(1),Leaf(2)),Branch(Branch(Leaf(5),Leaf(90)),Leaf(40)))
+    println("tree size="+Tree.size(t))
+    println("tree max="+Tree.maximum(t)((x,y) => x max y)) 
+    println("tree depth="+Tree.depth(t))   
+    println("tree ="+t) 
+    println("tree mapped="+Tree.map(t)(_-100))     
   }
    
 }
