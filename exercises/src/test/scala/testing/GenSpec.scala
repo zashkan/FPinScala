@@ -1,3 +1,7 @@
+import org.specs2.mutable.Specification
+
+import fpinscala.testing._
+
 /*
 Ex. 8.1
 
@@ -22,4 +26,20 @@ Properties that specify an implementation of maximum: List[Int] => Int
 
   3. xs: List[Int] => maximum(xs) == maximum(xs.reverse)
 */
+
+class GenSpec extends Specification {
+  val pTrue = new Prop { def check = true }
+  val pFalse = new Prop { def check = false }
+
+  "Prop#&&" should {
+    "result in true if all individual Props result in true" in {
+      val p = new Prop { def check = true }
+      (pTrue && p).check mustEqual true
+    }
+
+    "result in false if some individual Props result in false" in {
+      (pTrue && pFalse).check mustEqual false
+    }
+  }
+}
 
