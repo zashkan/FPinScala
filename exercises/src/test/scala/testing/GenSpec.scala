@@ -1,5 +1,6 @@
 import org.specs2.mutable.Specification
 
+import fpinscala.state.RNG
 import fpinscala.testing._
 
 /*
@@ -28,17 +29,34 @@ Properties that specify an implementation of maximum: List[Int] => Int
 */
 
 class GenSpec extends Specification {
-  val pTrue = new Prop { def check = true }
-  val pFalse = new Prop { def check = false }
+  val simpleRng = RNG.Simple(1)
+  val pPass = new Prop { def check = Right(1) }
+  val leftFail = Left("Fail" -> 1)
+  val pFail = new Prop { def check = leftFail }
 
   "Prop#&&" should {
     "result in true if all individual Props result in true" in {
-      val p = new Prop { def check = true }
-      (pTrue && p).check mustEqual true
+      val p = new Prop { def check = Right(1) }
+      (pPass && p).check mustEqual Right(2)
     }
 
     "result in false if some individual Props result in false" in {
-      (pTrue && pFalse).check mustEqual false
+      (pPass && pFail).check mustEqual leftFail
+    }
+  }
+
+  "Gen.choose" should {
+    "return a number within the given range" in {
+      val start = 0
+      val stopExclusive = 10
+      val (num, _) =
+        Gen
+          .choose(start, stopExclusive)
+          .asInstanceOf[GenST[Int]]
+          .sample
+          .run(simpleRng)
+
+      num must beBetween(start, stopExclusive).excludingEnd
     }
   }
 }
