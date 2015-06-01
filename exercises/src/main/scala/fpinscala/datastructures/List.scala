@@ -51,7 +51,6 @@ object List { // `List` companion object. Contains functions for creating and wo
   def product2(ns: List[Double]) =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
-
   def tail[A](l: List[A]): List[A] = l match {
     //case Nil => sys.error("tail of Nil list")
     case Nil => Nil
@@ -71,17 +70,17 @@ object List { // `List` companion object. Contains functions for creating and wo
     }
   }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
-    case Nil => Nil
-    case Cons(x,xs) =>
-      if (f(x))
-        dropWhile(xs, f)
-      else
-        l
-  }
+  // def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
+  //   case Nil => Nil
+  //   case Cons(x,xs) =>
+  //     if (f(x))
+  //       dropWhile(xs, f)
+  //     else
+  //       l
+  // }
 
-  def dropWhile2[A](l: List[A])(f: A => Boolean): List[A] = l match {
-    case Cons(h, t) if f(h) => dropWhile2(t)(f)
+  def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = l match {
+    case Cons(h, t) if f(h) => dropWhile(t)(f)
     case _ => l
   }
 
@@ -99,6 +98,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     @annotation.tailrec
     def go[A,B](l: List[A], z: B, acc: B)(f: (B, A) => B): B = l match {
       case Nil => acc
+      //case Cons(0, as) => 0
       case Cons(a, as) => go(as, z, f(acc, a))(f)
     }
 
@@ -196,6 +196,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 
 }
 
+/*
 object myModule {
   def main(args: Array[String]): Unit ={
     val a = List(1,2,3)
@@ -268,6 +269,6 @@ object myModule {
     println("tree mapped="+Tree.map(t)(_-100))   
     println("tree mapped2="+Tree.map2(t)(_-100))   
   }
-   
 }
+*/
 
