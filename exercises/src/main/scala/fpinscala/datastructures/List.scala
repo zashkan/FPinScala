@@ -256,10 +256,17 @@ object myModule {
 
     val t = Branch(Branch(Leaf(1),Leaf(2)),Branch(Branch(Leaf(5),Leaf(90)),Leaf(40)))
     println("tree size="+Tree.size(t))
+    println("tree size2="+Tree.size2(t))   
+
     println("tree max="+Tree.maximum(t)((x,y) => x max y)) 
+    println("tree max2="+Tree.maximum2(t)) 
+    
     println("tree depth="+Tree.depth(t))   
+    println("tree depth2="+Tree.depth2(t))  
+
     println("tree ="+t) 
-    println("tree mapped="+Tree.map(t)(_-100))     
+    println("tree mapped="+Tree.map(t)(_-100))   
+    println("tree mapped2="+Tree.map2(t)(_-100))   
   }
    
 }
