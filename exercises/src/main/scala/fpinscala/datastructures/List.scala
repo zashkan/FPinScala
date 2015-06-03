@@ -52,8 +52,8 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
   def tail[A](l: List[A]): List[A] = l match {
-    //case Nil => sys.error("tail of Nil list")
-    case Nil => Nil
+    case Nil => throw new UnsupportedOperationException("tail of Nil list")
+    //case Nil => Nil
     case Cons(x, xs) => xs
   }
 
@@ -65,7 +65,7 @@ object List { // `List` companion object. Contains functions for creating and wo
   def drop[A](l: List[A], n: Int): List[A] = {
     if (n<=0) l
     else l match {
-      case Nil => Nil
+      case Nil if (n>0) => throw new UnsupportedOperationException("drop count bigger than list length")
       case Cons(x,xs) => drop(xs,n-1)
     }
   }
@@ -96,13 +96,13 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = {
     @annotation.tailrec
-    def go[A,B](l: List[A], z: B, acc: B)(f: (B, A) => B): B = l match {
+    def go(l: List[A], acc: B)(f: (B, A) => B): B = l match {
       case Nil => acc
       //case Cons(0, as) => 0
-      case Cons(a, as) => go(as, z, f(acc, a))(f)
+      case Cons(a, as) => go(as, f(acc, a))(f)
     }
 
-    go(l, z, z)(f)
+    go(l, z)(f)
   }
 
   def sum3(ns: List[Int]) =
@@ -130,7 +130,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     //foldLeft(l, Nil)((acc, a)=>Cons(a, acc))  
   }
 
-  def append2[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_ , _))
+  def append2[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons.apply)
 
   def concatenate[A](ls: List[A]*): List[A] = {
     if (ls.isEmpty) Nil
@@ -183,7 +183,7 @@ object List { // `List` companion object. Contains functions for creating and wo
   def startsWith[A](a: List[A], b: List[A]): Boolean = (a,b) match {
     case (_,Nil) => true
     case (Cons(x,xs), Cons(y,ys)) if (x==y) => startsWith(xs,ys)
-    case(_,_) => false 
+    case _ => false 
   }
 
    @annotation.tailrec
@@ -195,80 +195,4 @@ object List { // `List` companion object. Contains functions for creating and wo
    }
 
 }
-
-/*
-object myModule {
-  def main(args: Array[String]): Unit ={
-    val a = List(1,2,3)
-    val b = List(9,8,7)
-    println(a)
-    println(List.sum(a))
-    println(List.tail(a))
-    println(List.tail(Nil))
-    println(List.setHead(a,-9))
-    println(List.setHead(Nil,-9))
-
-    println(List.drop(Nil,5))
-    println(List.drop(a,2))
-    def f(x:Int): Boolean = x==3
-
-    println(List.dropWhile(a,(t:Int)=>t==1))
-
-    println("init of %s is %s".format(a, List.init(a)))
-
-    println("dropWhile2 of %s is %s".format(a, List.dropWhile2(a)(_ == 1)))    
-    println("length of %s is %s".format(a, List.length(a)))    
-
-    println(List.sum3(a))
-    println(List.product3(a))
-    println(List.length2(a))
-
-    println(List.reverse(a))
-
-    println(List.append(a, b))
-    println(List.append2(a, b))
-
-    println(List.concatenate(a,b,a,b))
-    println(List.add1(a))
-
-    val c = List(1.5,6.3,8.8)
-    println(List.listDblToStr(c))
-    println(List.listDblToListStr(c))
-    println(List.map(c)(_.toString))
-
-    println(List.filter(a)(_>1))
-
-    val d: List[Int] = List(1,2,3,5,7,9,10)
-    println(List.filter(d)(_%2==0))
-    println(List.filter2(d)(_%2==0))
-
-    println(List.flatMap(a)(i => List(i,i*2, i*3)))
-    println(List.addL(a,b))
-    println(List.zipWith(a,b)(_*_))
-
-    var cols: Map[Char,Int] = Map()
-    cols += ('I' -> 5)
-    println(cols)
-
-    val l: List[Int] = List(1,3,2,2,6,5)
-    println("sub: " + List.hasSubsequence(l, List(2,2,5)))
-    println("sub2: " + List.hasSubsequence2(l, List(2,2))) 
-    println("start: " + List.startsWith(List(1,2,3,4), List()))
-
-    val t = Branch(Branch(Leaf(1),Leaf(2)),Branch(Branch(Leaf(5),Leaf(90)),Leaf(40)))
-    println("tree size="+Tree.size(t))
-    println("tree size2="+Tree.size2(t))   
-
-    println("tree max="+Tree.maximum(t)((x,y) => x max y)) 
-    println("tree max2="+Tree.maximum2(t)) 
-    
-    println("tree depth="+Tree.depth(t))   
-    println("tree depth2="+Tree.depth2(t))  
-
-    println("tree ="+t) 
-    println("tree mapped="+Tree.map(t)(_-100))   
-    println("tree mapped2="+Tree.map2(t)(_-100))   
-  }
-}
-*/
 

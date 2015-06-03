@@ -3,7 +3,7 @@ import org.specs2.ScalaCheck
 
 import fpinscala.datastructures._
 
-class ListSpec extends Specification {
+class ListSpec extends Specification with ScalaCheck {
   //========================================================================================
   //#3.1
   "pattern matching example x" should {
@@ -15,12 +15,14 @@ class ListSpec extends Specification {
   //========================================================================================
   //#3.2
   "tail" should {
-    "return Nil for an empty List" in {
-      List.tail(List()) mustEqual Nil
+    "not run on an empty List" in {
+      List.tail(List()) must throwA[UnsupportedOperationException]
     }
 
     "return Nil for single-element List" in {
-      List.tail(List(1)) mustEqual Nil
+      prop { 
+        x: Int =>
+          List.tail(List(x)) mustEqual Nil }
     }
 
     "return tail of multiple-element List" in {
@@ -51,23 +53,28 @@ class ListSpec extends Specification {
   //#3.4
   "drop" should {
     "result in Nil for empty List" in {
-      List.drop(List(), 2) mustEqual Nil
+      List.drop(List(), 0) mustEqual Nil
       List.drop(List(), -2) mustEqual Nil
     }
 
-    "result in Nil for single-element List and n>0" in {
+    "result in Nil for single-element List and n=1" in {
       List.drop(List(1), 1) mustEqual Nil
-      List.drop(List('a'), 2) mustEqual Nil
+      List.drop(List('a'), 1) mustEqual Nil
     }
 
-    "remove all elements from any List where length <= n" in {
+    "remove all elements from any List where length=n" in {
       List.drop(List(1,2), 2) mustEqual Nil
-      List.drop(List('a','b'), 4) mustEqual Nil
+      List.drop(List('a','b'), 2) mustEqual Nil
     }
 
     "remove first n elements for multiple-element List" in {
       List.drop(List(1,2), 1) mustEqual List(2)
       List.drop(List('a','b','c'), 2) mustEqual List('c')
+    }
+
+    "not run on a List with length < n" in {
+      List.drop(List(1,2), 3) must throwA[UnsupportedOperationException]
+      List.drop(List('a','b','c'), 4) must throwA[UnsupportedOperationException]
     }
   }
 
@@ -123,8 +130,8 @@ class ListSpec extends Specification {
   //#3.8
   "foldRight" should {
     "result in original list when passed the case class constructors" in {
-      List.foldRight(List(), Nil:List[Int])(Cons(_,_)) mustEqual List()
-      List.foldRight(List(1,2,3), Nil:List[Int])(Cons(_,_)) mustEqual List(1,2,3)
+      List.foldRight(List(), Nil:List[Int])(Cons.apply) mustEqual List()
+      List.foldRight(List(1,2,3), Nil:List[Int])(Cons.apply) mustEqual List(1,2,3)
     }
   }
 
@@ -136,8 +143,10 @@ class ListSpec extends Specification {
     }
 
     "result in 1 for a single-element List" in {
-      List.length(List(1)) mustEqual 1
-      List.length(List('a')) mustEqual 1
+      prop { 
+        x: Int =>
+          List.length(List(x)) mustEqual 1 
+        }
     }
 
     "reslut in the number of elements in a multiple-element List" in {
@@ -162,13 +171,14 @@ class ListSpec extends Specification {
     }
 
     "return the element value in a single-element List" in {
-      List.sum3(List(1)) mustEqual 1
-      List.sum3(List('a')) mustEqual 'a'
+      prop { 
+        x: Int =>
+          List.sum(List(x)) mustEqual x
+         }
     }
 
     "return sum of all elements in a multiple-element List" in {
       List.sum3(List(1,2,3)) mustEqual 6
-      List.sum3(List('a','b','c')) mustEqual 'a'+'b'+'c'
     }
   }
 
@@ -179,7 +189,6 @@ class ListSpec extends Specification {
 
     "return the element value in a single-element List" in {
       List.product3(List(3)) mustEqual 3
-      List.product3(List('a')) mustEqual 'a'
     }
 
     "return product of all elements in a multiple-element List" in {
@@ -190,17 +199,22 @@ class ListSpec extends Specification {
 
   "length2 (uses foldLeft)" should {
     "result in 0 for an empty List" in {
-      List.length2(List()) mustEqual List.length(List()) 
+      List.length2(List()) mustEqual 0 
     }
 
     "result in 1 for a single-element List" in {
-      List.length2(List(1)) mustEqual List.length(List(1))
-      List.length2(List('a')) mustEqual List.length(List(1))
+      prop { 
+        x: Int =>
+          List.length2(List(x)) mustEqual 1 
+        }
+      prop {
+        c: Char =>
+          List.length2(List(c)) mustEqual 1 
+      }
     }
 
     "reslut in the number of elements in a multiple-element List" in {
-      List.length2(List(1,2,3)) mustEqual List.length(List(1,2,3))
-      List.length2(List('a','b','c')) mustEqual List.length(List('a','b','c'))
+      List.length2(List(1,2,3)) mustEqual 3
     }
   }
 
@@ -212,8 +226,14 @@ class ListSpec extends Specification {
     }
 
     "return the same list for a single-element List" in {
-      List.reverse(List(1)) mustEqual List(1)
-      List.reverse(List('a')) mustEqual List('a')
+      prop { 
+        x: Int =>
+          List.reverse(List(x)) mustEqual List(x)
+        }
+      prop {
+        c: Char =>
+          List.reverse(List(c)) mustEqual List(c) 
+      }
     }
 
     "reslut in a reversed List for a multiple-element List" in {
@@ -315,7 +335,7 @@ class ListSpec extends Specification {
   //#3.19
   "filter" should {
     "result in Nil for an empty List" in {
-      List.filter(List():List[Int])(_>0) mustEqual Nil
+      List.filter(List[Int]())(_>0) mustEqual Nil
     }
 
     "result in Nill for a List whose elements don't pass the filter" in {
