@@ -3,10 +3,10 @@ import org.specs2.ScalaCheck
 
 import fpinscala.errorhandling._
 
-class erroSpec extends Specification {
+class EitherSpec extends Specification {
  //========================================================================================
   //#3.2
-  "error" should {
+  "Either" should {
     "return Nil for an empty List" in {
       1 mustEqual 1
     }
