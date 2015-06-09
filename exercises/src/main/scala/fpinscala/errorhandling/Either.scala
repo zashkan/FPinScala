@@ -35,32 +35,12 @@ sealed class Age(v: Int)
 
 
 object Either {
-	def mkAge(age: Int): Either[String, Age] =
-	if (age < 0) Left("negative age!")
-	else Right(new Age(age))
-
-	def mkName(name: String): Either[String, Name] =
-	if (name.length == 0) Left("empty name!")
-	else Right(new Name(name))
-
-	def mkPerson(name: String, age: Int): Either[String, Person] =
-		mkName(name).map2(mkAge(age))(Person(_,_))
-
-	def mkListErr(a: Int, b: Int): 
-	//List[String] = {
-	Either[List[String], Int] = {
-		var e: List[String] = List()
-		if (a < 0)  e = List("a is zero!")
-		if (b < 0)  e = e :+ "b is zero!" 
-		if (a < 0 || b < 0) Left(e)
-		else Right(a+b)
-		}
-
 
 	def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = 
 		es.foldRight[Either[E, List[B]]](Right(Nil))((h,t) => f(h).map2(t)(_ :: _))
 
-	def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = traverse(es)(x => x)
+	def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = 
+		traverse(es)(x => x)
 
 	def mean(xs: IndexedSeq[Double]): Either[String, Double] = 
 		if (xs.isEmpty) 

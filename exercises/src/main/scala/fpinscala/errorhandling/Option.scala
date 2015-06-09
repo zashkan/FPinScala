@@ -80,49 +80,7 @@ object Option {
     traverse(a)(x => x) 
 }
 
-object myModule {
-  def main(Args: Array[String]): Unit = {
-    println("hello from Option")
-    
-    //throws an exception
-    //Option.failingFn(3)
-    //returns 43
-    println(Option.failingFn2(3))
-    
 
-    // import Option._
-    // val x: Option[Double] = Some(-2)
-    // println(absO(x))
-    // println(absO(None))
-
-   
-
-    // val names = List("My", "Words", null, "aRE")
-    // //println(names.map(_.toLowerCase))
-    // val namesOpt = names.map(Some(_))
-    // println(namesOpt)
-
-    // val ages = List("1", "2", "4", "")
-    // println(Option.traverse(ages)(x => Try(x.toInt)))
-    // //namesOpt.flatMap(x => x)
-    // println(Either.Try(5/5))
-    // println(Either.safeDiv(5, 0))
-    // val e = Either.Try(0/0)
-    // println(e)
-
-    // val y: Option[Int] = Some(5)
-    // println("map with Int => Option:" + y.map(retOpt _))
-    // println("map with Int => Int:" + None.map(double _))
-
-    // println("flatMap with x => Option: " + y.flatMap(retOpt _))
-
-    // println(Either.mkName(""))
-    // println(Either.mkAge(1))
-    // println(Either.mkPerson("d", 1))
-
-    // println(Either.mkListErr(-2,-1).map(_+10))
-  } 
-}
 
 
 

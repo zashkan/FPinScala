@@ -45,7 +45,7 @@ class OptionSpec extends Specification {
       myNoneOption.flatMap(myPositiveDoubler) mustEqual None
     }
    
-    "return output of the passed function which is an Option for a Some object" in {
+    "return output of the passed function which outputs Option" in {
       mySomeInput1.flatMap(myPositiveDoubler) mustEqual mySomeOutput1
       mySomeInput2.flatMap(myPositiveDoubler) mustEqual mySomeOutput2
     }
@@ -128,7 +128,7 @@ class OptionSpec extends Specification {
   val allValueList2 = List(1,-2,3)
 
   "traverse" should {
-    "return the tranformed list values when it the tranformation for all items is successful" in {
+    "return the tranformed list values when the tranformation for all items is successful" in {
       Option.traverse(allValueList)(myPositiveDoubler) mustEqual Some(List(2,4,6))
     }
 
