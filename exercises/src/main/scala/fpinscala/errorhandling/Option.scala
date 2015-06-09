@@ -1,6 +1,5 @@
 package fpinscala.errorhandling
 
-
 import scala.{Option => _, Some => _, Either => _, _} // hide std library `Option`, `Some` and `Either`, since we are writing our own in this chapter
 
 sealed trait Option[+A] {
@@ -51,16 +50,17 @@ object Option {
     catch { case e: Exception => 43 }
   }
 
+  //=================================================================================
   def mean(xs: Seq[Double]): Option[Double] =
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
 
-  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
-  val absO: Option[Double] => Option[Double] = lift(math.abs)
-
   def variance(xs: Seq[Double]): Option[Double] = {
     mean(xs) flatMap(m => mean(xs.map(x => math.pow(x-m, 2))))
   }
+
+  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
+  val absO: Option[Double] => Option[Double] = lift(math.abs)
 
   def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
   // (a,b) match {
@@ -70,59 +70,57 @@ object Option {
     a flatMap (aa => b map (bb => f(aa, bb)))
   }
 
-  def sequence[A](a: List[Option[A]]): Option[List[A]] = sys.error("todo")
+  def sequence[A](a: List[Option[A]]): Option[List[A]] = 
+    a.foldRight[Option[List[A]]](Some(Nil))((x,y) => map2(x,y)(_ :: _))
 
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = 
     a.foldRight[Option[List[B]]](Some(Nil))((h,t) => map2(f(h),t)(_ :: _))
 
-  def Try[A](a: => A): Option[A] =
-    try Some(a)
-    catch { case e: Exception => None}
-
-  def retOpt(a: Int): Option[Int] =
-    if (a <= 0) None
-    else Some(a)
-
-  def double(a: Int): Int = 2 * a
+  def sequence_with_traverse[A](a: List[Option[A]]): Option[List[A]] = 
+    traverse(a)(x => x) 
 }
 
 object myModule {
   def main(Args: Array[String]): Unit = {
     println("hello from Option")
+    
+    //throws an exception
     //Option.failingFn(3)
-    println(math.abs(-2))
+    //returns 43
+    println(Option.failingFn2(3))
+    
 
-    import Option._
-    val x: Option[Double] = Some(-2)
-    println(absO(x))
-    println(absO(None))
+    // import Option._
+    // val x: Option[Double] = Some(-2)
+    // println(absO(x))
+    // println(absO(None))
 
-    Option.failingFn2(3)
+   
 
-    val names = List("My", "Words", null, "aRE")
-    //println(names.map(_.toLowerCase))
-    val namesOpt = names.map(Some(_))
-    println(namesOpt)
+    // val names = List("My", "Words", null, "aRE")
+    // //println(names.map(_.toLowerCase))
+    // val namesOpt = names.map(Some(_))
+    // println(namesOpt)
 
-    val ages = List("1", "2", "4", "")
-    println(Option.traverse(ages)(x => Try(x.toInt)))
-    //namesOpt.flatMap(x => x)
-    println(Either.Try(5/5))
-    println(Either.safeDiv(5, 0))
-    val e = Either.Try(0/0)
-    println(e)
+    // val ages = List("1", "2", "4", "")
+    // println(Option.traverse(ages)(x => Try(x.toInt)))
+    // //namesOpt.flatMap(x => x)
+    // println(Either.Try(5/5))
+    // println(Either.safeDiv(5, 0))
+    // val e = Either.Try(0/0)
+    // println(e)
 
-    val y: Option[Int] = Some(5)
-    println("map with Int => Option:" + y.map(retOpt _))
-    println("map with Int => Int:" + None.map(double _))
+    // val y: Option[Int] = Some(5)
+    // println("map with Int => Option:" + y.map(retOpt _))
+    // println("map with Int => Int:" + None.map(double _))
 
-    println("flatMap with x => Option: " + y.flatMap(retOpt _))
+    // println("flatMap with x => Option: " + y.flatMap(retOpt _))
 
-    println(Either.mkName(""))
-    println(Either.mkAge(1))
-    println(Either.mkPerson("d", 1))
+    // println(Either.mkName(""))
+    // println(Either.mkAge(1))
+    // println(Either.mkPerson("d", 1))
 
-    println(Either.mkListErr(-2,-1).map(_+10))
+    // println(Either.mkListErr(-2,-1).map(_+10))
   } 
 }
 
