@@ -79,24 +79,3 @@ object Option {
   def sequence_with_traverse[A](a: List[Option[A]]): Option[List[A]] = 
     traverse(a)(x => x) 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
