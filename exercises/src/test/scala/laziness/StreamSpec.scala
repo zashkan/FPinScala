@@ -62,4 +62,123 @@ class StreamSpec extends Specification {
     }
   }
 
+ //========================================================================================
+ //#5.4
+  "forAll" should {
+    "return true for an empty Stream" in {
+      streamEmpty.forAll(_ == 1) mustEqual true
+    }
+
+    "return true when all entries satisfy predicate" in {
+      streamOfInts.forAll(_ < 4) mustEqual true
+    }
+
+    "return false when some entry does not satisfy predicate" in {
+      streamOfInts.forAll(_ < 3) mustEqual false
+      streamOfInts.forAll(_ < 2) mustEqual false
+    }
+  }
+
+ //========================================================================================
+ //#5.5
+  "takeWhile_via_foldRight" should {
+    "return an empty Stream for an empty Stream" in {
+      streamEmpty.takeWhile_via_foldRight(_ == 1) mustEqual Empty
+    }
+
+    "return an empty Stream when the first entry does not satisfy predicate" in {
+      streamOfInts.takeWhile_via_foldRight(_ == 2) mustEqual Empty
+    }
+
+    "return a Stream with n first entires that satisfy predicate" in {
+      streamOfInts.takeWhile_via_foldRight(_ == 1).toList mustEqual Stream(1).toList
+    }
+  }
+
+ //========================================================================================
+ //#5.6
+  "headOption_via_foldRight" should {
+    "return an None for an empty Stream" in {
+      streamEmpty.headOption_via_foldRight mustEqual None
+    }
+
+    "return head entry for a none-empty Stream" in {
+      streamOfInts.headOption_via_foldRight mustEqual Some(1)
+    }
+  }
+
+ //========================================================================================
+ //#5.7
+  "map" should {
+    "return an empty Stream for an empty Stream" in {
+      streamEmpty.map(identity) mustEqual Empty
+    }
+
+    "return a Stream with all entries transformed by f" in {
+      streamOfInts.map(_ * 2).toList mustEqual List(2,4,6)
+    }
+  }
+
+  "filter" should {
+    "return an empty Stream for an empty Stream" in {
+      streamEmpty.filter(_ == 2) mustEqual Empty
+    }
+
+    "return a Stream with only entries that satisfy the filter" in {
+      streamOfInts.filter(_%2 == 1).toList mustEqual List(1,3)
+    }
+  }
+
+  "append" should {
+    "return an empty Stream for two empty Streams" in {
+      streamEmpty.append(streamEmpty) mustEqual Empty
+    }
+
+    "return a Stream with the other Stream is empty" in {
+      streamOfInts.append(streamEmpty).toList mustEqual List(1,2,3)
+      streamEmpty.append(streamOfInts).toList mustEqual List(1,2,3)
+    }
+
+    "return a Stream with both none-empty Streams" in {
+      streamOfInts.append(streamOfInts).toList mustEqual List(1,2,3,1,2,3)
+    }
+  }
+
+  "flatMap" should {
+    "return an empty Stream an empty Stream" in {
+      streamEmpty.flatMap(x => Stream(x,x)) mustEqual Empty
+    }
+
+    "return a Stream with each entry mapped to a new Stream for a none-empty Stream" in {
+      streamOfInts.flatMap(x => Stream(x,x)).toList mustEqual List(1,1,2,2,3,3)
+    }
+  }  
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
