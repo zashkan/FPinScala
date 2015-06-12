@@ -191,6 +191,89 @@ class StreamSpec extends Specification with ScalaCheck {
       }
     }
     
+ //========================================================================================
+ //#5.11 
+ //#5.12
+  "ones_via_unfold" should {
+    "return an infinite Stream of ones" in {
+      Stream.ones_via_unfold.take(4).toList mustEqual List(1,1,1,1)
+    }
+
+    "return a Stream with all entries transformed by f" in {
+      streamOfInts.map(_ * 2).toList mustEqual List(2,4,6)
+    }
+  }
+
+  "constant_via_unfold" should {
+    "return an infinite Stream with entries equal to the value passed" in {
+      prop {
+        x: Int =>
+          Stream.constant_via_unfold(x).exists(_ == x) mustEqual true
+          Stream.constant_via_unfold(x).take(2).toList mustEqual List(x,x)
+      }
+    }
+  }  
+
+  "from_via_unfold" should {
+    "return an infinite Stream with entries increasing from the initial integer" in {
+      prop {
+        x: Int =>
+          Stream.from_via_unfold(x).take(3).toList mustEqual List(x,x+1,x+2)
+      }
+    }
+  }  
+
+  "fibs_via_unfold" should {
+    "return an infinite Stream with entry at location n being equal to fibunacci number n" in {
+      prop {
+        x: Int =>
+           if ((x < 100) && (x > 0))
+             Stream.fibs_via_unfold.take(x).toList.last mustEqual fpinscala.gettingstarted.MyModule.fib(x-1)
+           else 
+             true mustEqual true
+        }
+      }
+    }
+    
+ //========================================================================================
+ //#5.12
+  "take_via_unfold" should {
+    "return an empty Stream for an empty Stream" in {
+      streamEmpty.take_via_unfold(3) mustEqual Empty
+    }
+
+    "return a Stream with n first entires" in {
+      streamOfInts.take_via_unfold(1).toList mustEqual Stream(1).toList
+    }
+  }
+
+  "takeWhile_via_unfold" should {
+    "return an empty Stream for an empty Stream" in {
+      streamEmpty.takeWhile_via_unfold(_ == 1) mustEqual Empty
+    }
+
+    "return an empty Stream when the first entry does not satisfy predicate" in {
+      streamOfInts.takeWhile_via_unfold(_ == 2) mustEqual Empty
+    }
+
+    "return a Stream with n first entires that satisfy predicate" in {
+      streamOfInts.takeWhile_via_unfold(_ == 1).toList mustEqual Stream(1).toList
+    }
+  }
+
+  "zipWith" should {
+    "result in one Stream when the other is Empty" in {
+      streamOfInts.zipWith(streamEmpty)((x,y) => x+y) mustEqual Empty
+    }
+
+    "result in a Stream with f applied on matching elements when Streams have same length" in {
+      streamOfInts.zipWith(streamOfInts)(_+_).toList mustEqual List(2,4,6)
+    }
+
+    "result in a Stream with f applied on matching elements when Streams have different length" in {
+      streamOfInts.zipWith(Stream(1,2,3,4))(_+_).toList mustEqual List(2,4,6)
+    }
+  }
 
 }
 

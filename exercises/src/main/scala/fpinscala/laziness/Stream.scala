@@ -38,18 +38,30 @@ trait Stream[+A] {
     case _ => empty
   }
 
+  def take_via_unfold(n: Int): Stream[A] =
+    unfold((this,n)) {
+      case (Cons(h,t),n) if (n > 0) => Some((h(), (t(),n-1)))
+      case _ => None
+    }
+
   def drop(n: Int): Stream[A] = this match {
     case Cons(h,t) if (n > 0) => t().drop(n-1)
     case _ => this
   }
 
-  def takeWhile_via_foldRight(p: A => Boolean): Stream[A] = 
-    foldRight(empty[A])((h,t) => if (p(h)) cons(h,t) else empty)
-
   def takeWhile(p: A => Boolean): Stream[A] = this match {
     case Cons(h,t) if (p(h())) => cons(h(), t().takeWhile(p))
     case _ => empty
   }
+
+  def takeWhile_via_foldRight(p: A => Boolean): Stream[A] = 
+    foldRight(empty[A])((h,t) => if (p(h)) cons(h,t) else empty)
+  
+  def takeWhile_via_unfold(p: A => Boolean): Stream[A] =
+    unfold(this) {
+      case Cons(h,t) if (p(h())) => Some((h(), t()))
+      case _ => None
+    }
 
   def forAll(p: A => Boolean): Boolean = this match {
     case Cons(h, t) => p(h()) && t().forAll(p)
@@ -72,6 +84,12 @@ trait Stream[+A] {
   def map[B](f: A => B): Stream[B] =
     foldRight(empty[B])((h,t) => cons(f(h),t))
 
+  def map_via_unfold[B](f: A => B): Stream[B] =
+     unfold(this) {
+    case Cons(h,t) => Some((f(h()), t()))
+    case empty => None
+    }  
+
   def filter(p: A => Boolean): Stream[A] =
     foldRight(empty[A])((h,t) => if (p(h)) cons(h,t) else t)  
 
@@ -81,7 +99,21 @@ trait Stream[+A] {
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((h,t) => f(h).append(t))
 
- 
+  def zipWith[B,C](b: Stream[B])(f: (A, B) => C): Stream[C] = 
+    unfold((this,b)) {
+      case (Cons(h1,t1), Cons(h2,t2)) => Some((f(h1(),h2()), (t1(),t2())))
+      case _ => None
+    }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    unfold(this, s2) {
+      case (Cons(h1,t1), Cons(h2,t2)) => Some(((Some(h1()) -> Some(h2())), (t1() -> t2())))
+      case (Cons(h1,t1), _) => Some(((Some(h1()) -> Option.empty[B]),(t1() -> empty[B])))
+      case (_, Cons(h2,t2)) => Some(((Option.empty[A] -> Some(h2())),(empty[A] -> t2())))
+      //case (Cons(h1,t1), _) => Some(((Some(h1()),None), (t1(), empty))
+      //case (_, Cons(h2,t2)) => Some(((None,Some(h2())), ((empty,t2())))
+      case _ => None
+    }
 
   def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
 }
@@ -104,17 +136,25 @@ object Stream {
   //infinite streams:
   val ones: Stream[Int] = Stream.cons(1, ones)
 
+  val ones_via_unfold: Stream[Int] = unfold(1)(s => Some(s,s))
+
   def constant[A](a: A): Stream[A] = {
     lazy val t: Stream[A] = Cons(() => a, () => t)
-    //val c: Stream[A] = cons(a, constant(a))
     t  
+    //cons(a, constant(a))
   }  
+
+  def constant_via_unfold[A](a: A): Stream[A] = 
+    unfold(a)(s => Some(s,s))
 
   def from(n: Int): Stream[Int] = {
     //cons(n, from(n+1))
     lazy val t: Stream[Int] = Cons(() => n, () => t.map(_+1))
     t
   }
+
+  def from_via_unfold(n: Int): Stream[Int] =
+    unfold(n)(s => Some(s,s+1))
 
   def fibs: Stream[Int] = {
     //@annotation.tailrec
@@ -124,17 +164,19 @@ object Stream {
     go(0, 1)
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
+  def fibs_via_unfold: Stream[Int] = 
+    unfold((0,1))(s => Some(s._1, (s._2, s._1+s._2)))
 
-  def myPrint() = println("from my Stream")
-
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case None => empty
+    case Some((a, s)) => cons(a, unfold(s)(f))
+  }
 
 }
 
 object myObj {
   def main(args: Array[String]) = { 
     println("in Stream!")
-    Stream.myPrint
 
     def item1(): Int = { println("item 1!"); 1}
     def item2(): Int = { println("item 2!"); 2}
@@ -206,10 +248,13 @@ object myObj {
 
     println(fpinscala.gettingstarted.MyModule.fib(6))
 
-    for (x <- 1 to 20) {
+    for (x <- 1 to 5) {
       if (Stream.fibs.take(x).toList.last==fpinscala.gettingstarted.MyModule.fib(x-1))
         println("match at "+x)
     }
+
+    println("\nunflod:")
+    println(unfold(1)(s => Option((s,s+1))).take(10).toList)
 
  }
 }
