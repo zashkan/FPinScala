@@ -81,6 +81,8 @@ trait Stream[+A] {
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((h,t) => f(h).append(t))
 
+ 
+
   def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
 }
 case object Empty extends Stream[Nothing]
@@ -99,8 +101,28 @@ object Stream {
     if (as.isEmpty) empty 
     else cons(as.head, apply(as.tail: _*))
 
+  //infinite streams:
   val ones: Stream[Int] = Stream.cons(1, ones)
-  def from(n: Int): Stream[Int] = sys.error("todo")
+
+  def constant[A](a: A): Stream[A] = {
+    lazy val t: Stream[A] = Cons(() => a, () => t)
+    //val c: Stream[A] = cons(a, constant(a))
+    t  
+  }  
+
+  def from(n: Int): Stream[Int] = {
+    //cons(n, from(n+1))
+    lazy val t: Stream[Int] = Cons(() => n, () => t.map(_+1))
+    t
+  }
+
+  def fibs: Stream[Int] = {
+    //@annotation.tailrec
+    def go(a: Int, b: Int): Stream[Int] =
+      cons(a, go(b, a+b))
+
+    go(0, 1)
+  }
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
 
@@ -152,8 +174,43 @@ object myObj {
     println(c.exists(_ == 2))
 
     println("forAll:")
-    println(c.forAll(_ < 1))
+    //println(c.forAll(_ < 1))
+    c.forAll(_ < 1)
     println(c.forAll_via_foldRight(_ < 1))
+
+    println("combining")
+    //println(c.map(_*2).toList)
+    //println(c.map(_*2).filter(_%2 == 0).toList)
+    c.map(_*2).filter(_%2 == 0).take(5)
+
+    println("************************\ninfinite Streams:")
+    println(ones.takeWhile(_>2).toList)
+    println(ones.take(2).toList)
+    println(ones.exists(_ % 2 != 0))
+    println(ones.map(_ + 1).exists(_ == 2))
+    
+    try {
+      //ones.takeWhile(_ == 1).toList
+      1/0
+    }
+    catch { 
+      case e: java.lang.Exception => {
+        println(e.getMessage())
+      } 
+    }
+
+    println(ones.forAll(_ != 1))
+
+    println(from(4).take(10).toList)
+    println(fibs.take(10).toList)
+
+    println(fpinscala.gettingstarted.MyModule.fib(6))
+
+    for (x <- 1 to 20) {
+      if (Stream.fibs.take(x).toList.last==fpinscala.gettingstarted.MyModule.fib(x-1))
+        println("match at "+x)
+    }
+
  }
 }
 

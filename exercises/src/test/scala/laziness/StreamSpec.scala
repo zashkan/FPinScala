@@ -3,7 +3,7 @@ import org.specs2.ScalaCheck
 
 import fpinscala.laziness._
 
-class StreamSpec extends Specification {
+class StreamSpec extends Specification with ScalaCheck {
  
  //========================================================================================
  //#5.1
@@ -152,10 +152,47 @@ class StreamSpec extends Specification {
     "return a Stream with each entry mapped to a new Stream for a none-empty Stream" in {
       streamOfInts.flatMap(x => Stream(x,x)).toList mustEqual List(1,1,2,2,3,3)
     }
+  }
+
+ //========================================================================================
+ //#5.8
+  "constant" should {
+    "return an infinite Stream with entries equal to the value passed" in {
+      prop {
+        x: Int =>
+          Stream.constant(x).exists(_ == x) mustEqual true
+          Stream.constant(x).take(2).toList mustEqual List(x,x)
+      }
+    }
   }  
 
-}
+ //========================================================================================
+ //#5.9
+  "from" should {
+    "return an infinite Stream with entries increasing from the initial integer" in {
+      prop {
+        x: Int =>
+          Stream.from(x).take(3).toList mustEqual List(x,x+1,x+2)
+      }
+    }
+  }  
 
+ //========================================================================================
+ //#5.10
+  "fibs" should {
+    "return an infinite Stream with entry at location n being equal to fibunacci number n" in {
+      prop {
+        x: Int =>
+           if ((x < 100) && (x > 0))
+             Stream.fibs.take(x).toList.last mustEqual fpinscala.gettingstarted.MyModule.fib(x-1)
+           else 
+             true mustEqual true
+        }
+      }
+    }
+    
+
+}
 
 
 
