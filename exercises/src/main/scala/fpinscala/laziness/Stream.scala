@@ -109,13 +109,29 @@ trait Stream[+A] {
     unfold(this, s2) {
       case (Cons(h1,t1), Cons(h2,t2)) => Some(((Some(h1()) -> Some(h2())), (t1() -> t2())))
       case (Cons(h1,t1), _) => Some(((Some(h1()) -> Option.empty[B]),(t1() -> empty[B])))
-      case (_, Cons(h2,t2)) => Some(((Option.empty[A] -> Some(h2())),(empty[A] -> t2())))
-      //case (Cons(h1,t1), _) => Some(((Some(h1()),None), (t1(), empty))
-      //case (_, Cons(h2,t2)) => Some(((None,Some(h2())), ((empty,t2())))
+      case (_, Cons(h2,t2)) => Some(((Option.empty[A] -> Some(h2())) , (empty[A] -> t2())))
       case _ => None
     }
 
-  def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
+  // def startsWith[A](s: Stream[A]): Boolean = (this,s) match {
+  //   case (_,Empty) => true
+  //   case (Empty,_) => false
+  //   case (Cons(ha,ta),Cons(hb,tb)) if (ha() == hb()) => ta().startsWith(tb())
+  //   case (_,_) => false
+  // }
+
+  def startsWith[A](s: Stream[A]): Boolean = 
+    this.zipAll(s).takeWhile(x => x._2 != None).forAll(x => x match { case (h1,h2) => h1==h2})
+
+  def tails: Stream[Stream[A]] = 
+    unfold(this){
+      case Cons(h,t) => Some((Cons(h,t),t()))
+      case _ => None 
+    }.append(Stream(empty))
+
+  def hasSubsequence[A](s: Stream[A]): Boolean = 
+    tails exists (_ startsWith s)
+
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]       
@@ -173,122 +189,3 @@ object Stream {
   }
 
 }
-
-object myObj {
-  def main(args: Array[String]) = { 
-    println("in Stream!")
-
-    def item1(): Int = { println("item 1!"); 1}
-    def item2(): Int = { println("item 2!"); 2}
-    def item3(): Int = { println("item 3!"); 3}
-
-    //val c = Stream(item1,item2,item3)
-    //val c = Cons(() => item1(), () => Stream.empty)
-    val c = Cons(() => item1, 
-                 () => Cons(() => item2, 
-                            () => Cons(() => item3,
-                                       () => Stream.empty)))
-    
-    val h1 = c.headOption
-    val h2 = c.headOption
-
-    val l = c.toList
-    println(l)
-
-    val l2 = c.toList2
-    println(l2)
-
-    println("take(n):")
-    val sTake = c.take(2)
-    println(sTake.toList)
-
-    println("drop(n):")
-    val sDrop = c.drop(1)
-    println(sDrop.toList)
-
-    println("takeWhile(p) first call:\n" + c.takeWhile(_ < 2).toList)
-
-    println("takeWhile(p) second call:")
-    val t = c.takeWhile(_ < 2)
-    println(t.toList)
-
-    println("exists:")
-    println(c.exists(_ == 2))
-
-    println("forAll:")
-    //println(c.forAll(_ < 1))
-    c.forAll(_ < 1)
-    println(c.forAll_via_foldRight(_ < 1))
-
-    println("combining")
-    //println(c.map(_*2).toList)
-    //println(c.map(_*2).filter(_%2 == 0).toList)
-    c.map(_*2).filter(_%2 == 0).take(5)
-
-    println("************************\ninfinite Streams:")
-    println(ones.takeWhile(_>2).toList)
-    println(ones.take(2).toList)
-    println(ones.exists(_ % 2 != 0))
-    println(ones.map(_ + 1).exists(_ == 2))
-    
-    try {
-      //ones.takeWhile(_ == 1).toList
-      1/0
-    }
-    catch { 
-      case e: java.lang.Exception => {
-        println(e.getMessage())
-      } 
-    }
-
-    println(ones.forAll(_ != 1))
-
-    println(from(4).take(10).toList)
-    println(fibs.take(10).toList)
-
-    println(fpinscala.gettingstarted.MyModule.fib(6))
-
-    for (x <- 1 to 5) {
-      if (Stream.fibs.take(x).toList.last==fpinscala.gettingstarted.MyModule.fib(x-1))
-        println("match at "+x)
-    }
-
-    println("\nunflod:")
-    println(unfold(1)(s => Option((s,s+1))).take(10).toList)
-
- }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

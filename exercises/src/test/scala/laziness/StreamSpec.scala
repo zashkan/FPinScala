@@ -236,7 +236,7 @@ class StreamSpec extends Specification with ScalaCheck {
     }
     
  //========================================================================================
- //#5.12
+ //#5.13
   "take_via_unfold" should {
     "return an empty Stream for an empty Stream" in {
       streamEmpty.take_via_unfold(3) mustEqual Empty
@@ -275,30 +275,51 @@ class StreamSpec extends Specification with ScalaCheck {
     }
   }
 
+  "zipAll" should {
+    "result in an Empty Stream for two Empty Streams" in {
+      streamEmpty.zipAll(streamEmpty).toList mustEqual List()
+    }
+
+    "result in a Stream with pairs of two Somes for same length Streams" in {
+      Stream(1).zipAll(Stream('a')).toList mustEqual List((Some(1),Some('a')))
+    }
+
+    "result in a Stream with pairs of a Some and a None for different length Streams" in {
+      Stream().zipAll(Stream('a')).toList mustEqual List((None,Some('a')))
+      Stream(1).zipAll(Stream()).toList mustEqual List((Some(1),None))
+    }
+  }
+
+ //========================================================================================
+ //#5.14
+  "startsWith" should {
+    "return true for Empty sub Stream" in {
+      streamOfInts.startsWith(streamEmpty) mustEqual true
+    }
+
+    "return false for an Empty sup Stream and a none-empty sub Stream" in {
+      streamEmpty.startsWith(streamOfInts) mustEqual false
+    }
+
+    "return false when sup Stream doesn't start with sub Stream" in {
+      streamOfInts.startsWith(Stream(2)) mustEqual false
+    }
+
+    "return true when sup Stream start with sub Stream" in {
+      streamOfInts.startsWith(Stream(1,2)) mustEqual true
+    }
+  }
+
+ //========================================================================================
+ //#5.15
+  "tails" should {
+    "return a Stream of Empty for an Empty Stream" in {
+      streamEmpty.tails.toList mustEqual List(Empty)
+    }
+
+    "return a Stream of all possible tail Streams" in {
+      streamOfInts.tails.map(_.toList).toList mustEqual List(List(1, 2, 3), List(2, 3), List(3), List())
+    }
+  }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
