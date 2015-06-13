@@ -181,7 +181,8 @@ object Stream {
   }
 
   def fibs_via_unfold: Stream[Int] = 
-    unfold((0,1))(s => Some(s._1, (s._2, s._1+s._2)))
+    //unfold((0,1))(s => Some(s._1, (s._2, s._1+s._2)))
+    unfold(0,1){ case (a,b) => Some(a, (b, a+b))}
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
     case None => empty
