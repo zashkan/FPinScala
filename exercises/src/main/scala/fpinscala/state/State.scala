@@ -38,11 +38,9 @@ object RNG {
     (if (i < 0) -(i + 1) else i, r)
   }
 
-  def nNI: Rand[Int] = nonNegativeInt(_)
-
   def double(rng: RNG): (Double, RNG) = {
     val (i, r) = nonNegativeInt(rng)
-    ((i.toDouble-1)/Int.MaxValue, r)
+    ((i.toDouble)/(Int.MaxValue.toDouble+1), r)
   }
 
   def double_via_map: Rand[Double] =
@@ -146,17 +144,19 @@ object RNG {
 
 case class State[S,+A](run: S => (A, S)) {
   def map[B](f: A => B): State[S, B] = 
-    State { (s: S) =>
-      val (a, s2) = run(s)
-      (f(a), s2)
-    }
+    // State { (s: S) =>
+    //   val (a, s2) = run(s)
+    //   (f(a), s2)
+    // }
+    flatMap(a => State.unit(f(a)))
     
   def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] =
-    State { (s: S) =>
-      val (a, s2) = run(s)
-      val (b, s3) = sb.run(s2)
-      (f(a,b), s3)
-    }
+    // State { (s: S) =>
+    //   val (a, s2) = run(s)
+    //   val (b, s3) = sb.run(s2)
+    //   (f(a,b), s3)
+    // }
+    flatMap(a => sb.map(b => f(a,b)))
     
   def flatMap[B](f: A => State[S, B]): State[S, B] =
     State { s =>
@@ -164,18 +164,39 @@ case class State[S,+A](run: S => (A, S)) {
       val (b, s3) = f(a).run(s2)
       (b, s3)
     }
+
 }
+
+object State {
+  type Rand[A] = State[RNG, A]
+
+  def unit[S, A](a: A): State[S, A] = 
+    State {
+      s => (a, s)
+    }
+
+  def sequence[S, A](fs: List[State[S,A]]): State[S, List[A]] =
+    fs.foldRight(unit[S, List[A]](List[A]()))((h, acc) => h.map2(acc)(_ :: _))
+  
+  import fpinscala.applicative.StateUtil.{ get, set }
+
+  def modify[S](f: S => S): State[S, Unit] = for {
+    s <- get // Gets the current state and assigns it to `s`.
+    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
+  } yield ()
+
+  //def get[S]: State[S, S] = State(s => (s, s))
+  //def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+}
+
 
 sealed trait Input
 case object Coin extends Input
 case object Turn extends Input
 
 case class Machine(locked: Boolean, candies: Int, coins: Int)
-
-object State {
-  type Rand[A] = State[RNG, A]
-  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
-}
 
 object myModule {
   def main(args: Array[String]) = {
