@@ -317,19 +317,8 @@ class StateSpec extends Specification with ScalaCheck {
       prop { 
         y: Long =>
           val rng1 = RNG.Simple(y)
-          val xs = List(1,2)
-          //val f: State[RNG, Int] = State.unit
-          
-          val (ys, rng2) = State.sequence(xs.map(State.unit[RNG, Int])).run(rng1)
-          
-          //Works
-          // val f = (a: Int) => State(a -> _): State[RNG, Int] 
-          // val (ys, rng2) = State.sequence(xs.map(f)).run(rng1)
-
-          //substitution of f works-Referential transparency 
-          //val f = State.unit[RNG, Int]
-          //val (ys, rng2) = State.sequence(xs.map(f)).run(rng1)
-
+          val xs = List(1,2)          
+          val (ys, rng2) = State.sequence(xs.map(State.unit[RNG, Int])).run(rng1)  
           ys mustEqual xs
           rng1 mustEqual rng2
            }
