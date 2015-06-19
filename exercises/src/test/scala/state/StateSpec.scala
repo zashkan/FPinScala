@@ -304,10 +304,8 @@ class StateSpec extends Specification with ScalaCheck {
         y: Long =>
           val rng1 = RNG.Simple(y)
           val s: State[RNG, Int] = State.unit(1)
-          //val (a, rng2) = s.flatMap(x => s).run(rng1)
           val f = (x: Int) => State.unit(x+2): State[RNG, Int]
-          //val (a, rng2) = s.flatMap(x => State[RNG, Int].unit(x+2)).run(rng1)
-          val (a, rng2) = s.flatMap(x => State.unit(x+2): State[RNG, Int]).run(rng1)
+          val (a, rng2) = s.flatMap(f).run(rng1)
           a mustEqual 3
           rng1 mustEqual rng2
            }
@@ -319,8 +317,20 @@ class StateSpec extends Specification with ScalaCheck {
       prop { 
         y: Long =>
           val rng1 = RNG.Simple(y)
-          val (a, rng2) = State.sequence(List(State.unit(1): State[RNG, Int], State.unit(2): State[RNG, Int])).run(rng1)
-          a mustEqual List(1,2)
+          val xs = List(1,2)
+          //val f: State[RNG, Int] = State.unit
+          
+          val (ys, rng2) = State.sequence(xs.map(State.unit[RNG, Int])).run(rng1)
+          
+          //Works
+          // val f = (a: Int) => State(a -> _): State[RNG, Int] 
+          // val (ys, rng2) = State.sequence(xs.map(f)).run(rng1)
+
+          //substitution of f works-Referential transparency 
+          //val f = State.unit[RNG, Int]
+          //val (ys, rng2) = State.sequence(xs.map(f)).run(rng1)
+
+          ys mustEqual xs
           rng1 mustEqual rng2
            }
     }
