@@ -44,7 +44,7 @@ object RNG {
   }
 
   def double_via_map: Rand[Double] =
-    map(nonNegativeInt)(i => (i.toDouble-1)/Int.MaxValue)
+    map(nonNegativeInt)(i => (i.toDouble)/(Int.MaxValue.toDouble+1))
 
   def intDouble(rng: RNG): ((Int,Double), RNG) = {
     val (i, rng2) = rng.nextInt
@@ -57,28 +57,12 @@ object RNG {
     ((d,i), rng2)
   }
 
-
   def double3(rng: RNG): ((Double,Double,Double), RNG) = {
     val (d1, rng2) = double(rng)
     val (d2, rng3) = double(rng2)
     val (d3, rng4) = double(rng3)
     ((d1,d2,d3), rng4)
   }
-
-  // def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
-  //   var rOld = rng
-  //   var rNew = rng
-  //   var xs:List[Int] = List()
-  //   //var x = 0
-
-  //   for(i <- 1 to count) {
-  //     var (x,rNew) = rOld.nextInt
-  //     xs = x +: xs
-  //     println(i)
-  //     rOld = rNew
-  //   }
-  //   (xs, rNew)
-  // }
 
   def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
     @annotation.tailrec
@@ -94,7 +78,6 @@ object RNG {
 
   def ints_via_sequence(count: Int)(rng: RNG): (List[Int], RNG) =
     sequence(List.fill(count)(nonNegativeInt(_)))(rng)
-    //sequence(List(int,int))(rng)
 
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = 
     rng => {
@@ -107,29 +90,8 @@ object RNG {
     //flatMap(ra)(a => f(a,rb(r)))
     flatMap(ra)(a => map(rb)(b => f(a,b)))
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = {
-    // rng => {
-    //   for (f <- fs) {
-    //    var (a, r) = f(rng)
-    //    //update rng = r
-    //    //attach a to result
-    //   }
-    //   (List(a), r)
-    // }
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = 
     fs.foldRight(unit(List[A]()))((h,t) => map2(h, t)(_ :: _))
-  }
-
-  //@annotation.tailrec
-  // def nonNegativeLessThan(n: Int): Rand[Int] =
-  //   rng => {
-  //     var (i, r2) = nonNegativeInt(rng)
-  //     while (i >= n) {
-  //       var (ii, r22) = nonNegativeInt(r2)
-  //       i = ii
-  //       r2 = r22
-  //     }
-  //     (i, r2)
-  //   }
 
   def nonNegativeLessThan(n: Int): Rand[Int] =
     flatMap(nonNegativeInt)(i => if (i-i%n+n-1 >= 0) unit(i%n) else nonNegativeLessThan(n))
@@ -191,7 +153,6 @@ object State {
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
 }
 
-
 sealed trait Input
 case object Coin extends Input
 case object Turn extends Input
@@ -206,12 +167,6 @@ object myModule {
     println(rng.nextInt)
     println(rng.nextInt)
 
-    // var r = rng.nextInt
-    // while (r._1 > 0) {
-    //   rng = r._2
-    //   r = rng.nextInt
-    // }
-    // println(r)
     println(RNG.nonNegativeInt(rng))
 
     println(Int.MaxValue, Int.MinValue)

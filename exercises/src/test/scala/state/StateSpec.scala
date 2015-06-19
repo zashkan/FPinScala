@@ -100,17 +100,101 @@ class StateSpec extends Specification with ScalaCheck {
     }
   }
 
- // //========================================================================================
- // //#5.8
- //  "constant" should {
- //    "return an infinite Stream with entries equal to the value passed" in {
- //      prop {
- //        x: Int =>
- //          Stream.constant(x).exists(_ == x) mustEqual true
- //          Stream.constant(x).take(2).toList mustEqual List(x,x)
- //      }
- //    }
- //  }  
+ //========================================================================================
+ //#6.4
+  "ints" should {
+    "return an empty List of ints Output along with the same State" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (as, rng2) = RNG.ints(0)(rng1)         
+          as.length mustEqual 0
+          rng1 mustEqual rng2
+           }
+    }
 
+    "return a List of ints Output along with a new State" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (as, rng2) = RNG.ints(5)(rng1)         
+          as.forall(i => (i <= Int.MaxValue) && (i >= Int.MinValue)) mustEqual true
+          as.length mustEqual 5
+          rng1 mustNotEqual rng2
+           }
+    }
+  }
 
+ //========================================================================================
+ //#6.5
+  "double_via_map" should {
+    "return a bigger than or equal to zero and less than one double Output along with a new State" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (d, rng2) = RNG.double_via_map(rng1) 
+          d must beBetween(0.0, 1.0).excludingEnd
+          rng1 mustNotEqual rng2
+           }
+    }
+  }
+
+ //========================================================================================
+ //#6.6
+  "map2" should {
+    "combine two State Actions and apply f to their Outputs and return it along with a new State - unit" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (a, rng2) = RNG.map2(RNG.unit(1), RNG.unit(2))((_,_))(rng1)
+          a mustEqual (1,2)
+           }
+    }
+
+    "combine two State Actions and apply f to their Outputs and return it along with a new State - Rand" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (a, rng2) = RNG.map2(RNG.double, RNG.nonNegativeInt)((_,_))(rng1)
+          a._1 must beBetween(0.0, 1.0).excludingEnd
+          a._2 must beBetween(Int.MinValue, Int.MaxValue)
+           }
+    }
+  }
+
+ //========================================================================================
+ //#6.7
+  "sequence" should {
+    "apply each State Action in a List and return an State Action of a List of Outputs" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (a, rng2) = RNG.sequence(List(RNG.unit(1), RNG.unit(2)))(rng1)
+          a mustEqual List(1,2)
+           }
+    }
+  }
+
+  "ints_via_sequence" should {
+    "return an empty List of ints Output along with the same State" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (as, rng2) = RNG.ints_via_sequence(0)(rng1)         
+          as.length mustEqual 0
+          rng1 mustEqual rng2
+           }
+    }
+
+    "return a List of ints Output along with a new State" in {
+      prop { 
+        y: Long =>
+          val rng1 = new RNG.Simple(y)
+          val (as, rng2) = RNG.ints_via_sequence(5)(rng1)         
+          as.forall(i => (i <= Int.MaxValue) && (i >= Int.MinValue)) mustEqual true
+          as.length mustEqual 5
+          rng1 mustNotEqual rng2
+           }
+    }
+  }
 }
