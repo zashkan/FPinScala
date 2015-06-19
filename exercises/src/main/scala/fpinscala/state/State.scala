@@ -77,7 +77,7 @@ object RNG {
   }
 
   def ints_via_sequence(count: Int)(rng: RNG): (List[Int], RNG) =
-    sequence(List.fill(count)(nonNegativeInt(_)))(rng)
+    sequence(List.fill(count)(int))(rng)
 
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = 
     rng => {
@@ -91,7 +91,8 @@ object RNG {
     flatMap(ra)(a => map(rb)(b => f(a,b)))
 
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = 
-    fs.foldRight(unit(List[A]()))((h,t) => map2(h, t)(_ :: _))
+    //fs.foldRight(unit(List[A]()))((h,t) => map2(h, t)(_ :: _))
+    fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
 
   def nonNegativeLessThan(n: Int): Rand[Int] =
     flatMap(nonNegativeInt)(i => if (i-i%n+n-1 >= 0) unit(i%n) else nonNegativeLessThan(n))
@@ -110,7 +111,8 @@ case class State[S,+A](run: S => (A, S)) {
     //   val (a, s2) = run(s)
     //   (f(a), s2)
     // }
-    flatMap(a => State.unit(f(a)))
+    //flatMap(a => State.unit(f(a)))
+    flatMap(f andThen State.unit)
     
   def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] =
     // State { (s: S) =>
@@ -133,9 +135,7 @@ object State {
   type Rand[A] = State[RNG, A]
 
   def unit[S, A](a: A): State[S, A] = 
-    State {
-      s => (a, s)
-    }
+    State(a -> _)
 
   def sequence[S, A](fs: List[State[S,A]]): State[S, List[A]] =
     fs.foldRight(unit[S, List[A]](List[A]()))((h, acc) => h.map2(acc)(_ :: _))
